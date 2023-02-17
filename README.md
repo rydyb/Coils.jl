@@ -7,5 +7,6 @@ Users can specify the geometry, number of turns, and coil wire size, and the lib
 ## Installation
 
 ```julia
-julia> ]add https://github.com/ryd-yb/Coils.jl
+using Pkg
+Pkg.add("https://github.com/ryd-yb/Coils.jl")
 ```
