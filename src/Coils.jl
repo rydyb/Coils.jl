@@ -1,5 +1,8 @@
 module Coils
 
-greet() = print("Hello World!")
+export CurrentLoop, mfd
+
+include("types.jl")
+include("mfd.jl")
 
 end # module Coils
