@@ -3,6 +3,7 @@ module Coils
 export CurrentLoop, mfd
 
 include("types.jl")
-include("mfd.jl")
+include("geometry.jl")
+include("magnetism.jl")
 
 end # module Coils

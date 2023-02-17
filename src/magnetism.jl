@@ -14,6 +14,14 @@ export mfd
     mfd(cl::CurrentLoop, ρ::Float64, z::Float64)
 
 The vectorial magnetic flux density due to a current loop in cylindrical coordinates with the current loop centered around the origin according to Ref. [1,2].
+
+# Arguments
+- `cl::CurrentLoop`: The current loop.
+- `ρ::Float64`: The radial coordinate in meters.
+- `z::Float64`: The axial coordinate in meters.
+
+# Returns
+- `Vector{Float64}`: The vectorial magnetic flux density in Gauss.
 """
 function mfd(cl::CurrentLoop, ρ::Float64, z::Float64)
     I = cl.current
@@ -43,5 +51,5 @@ function mfd(cl::CurrentLoop, ρ::Float64, z::Float64)
         Bz = 0
     end
 
-    return [Bρ Bz]
+    return [Bρ Bz] ./ 1e4
 end
