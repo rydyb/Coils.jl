@@ -19,14 +19,10 @@ begin
 	using Pkg
 
 	Pkg.add(url="https://github.com/ryd-yb/Coils.jl#main")
-	Pkg.status()
 end
 
 # ╔═╡ fc5fe978-dd7c-47f0-ad16-d11fbeff66c1
 using Coils, Plots, PlutoUI
-
-# ╔═╡ 556aa594-f0e9-45b1-9d8b-15d30e7205c2
-Pkg.precompile()
 
 # ╔═╡ b198599a-6bae-4b7c-a4f7-72f29966d54e
 md"""
@@ -77,7 +73,6 @@ end
 
 # ╔═╡ Cell order:
 # ╠═c94bc61a-6d24-4292-b796-a1b801752ba0
-# ╠═556aa594-f0e9-45b1-9d8b-15d30e7205c2
 # ╠═fc5fe978-dd7c-47f0-ad16-d11fbeff66c1
 # ╟─b198599a-6bae-4b7c-a4f7-72f29966d54e
 # ╟─1a611c41-9edb-434a-a3aa-398e89e75b02

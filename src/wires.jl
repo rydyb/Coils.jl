@@ -12,10 +12,9 @@ Returns the cylindrical coordinates of a current loop centered at the origin.
 - `Vector{Tuple{Float64, Float64}}`: A vector of tuples containing the radial and axial coordinate of each wire.
 """
 function wires(cl::CurrentLoop)
-    h = cl.height
     R = cl.radius
 
-    return [(R, h)]
+    return [(R, 0)]
 end
 
 """
