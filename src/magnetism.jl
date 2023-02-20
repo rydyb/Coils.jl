@@ -53,3 +53,45 @@ function mfd(cl::CurrentLoop, ρ::Float64, z::Float64)
 
     return [Bρ Bz] ./ 1e4
 end
+
+"""
+    mfd(ao::AxialOffset, ρ::Float64, z::Float64)
+
+The vectorial magnetic flux density due to a coil shifted axialy with respect to the origin.
+
+# Arguments
+- `ao::AxialOffset`: The coil shifted axialy with respect to the origin.
+- `ρ::Float64`: The radial coordinate in meters.
+- `z::Float64`: The axial coordinate in meters.
+
+# Returns
+- `Vector{Float64}`: The vectorial magnetic flux density in Gauss.
+"""
+function mfd(ao::AxialOffset, ρ::Float64, z::Float64)
+    z₀ = ao.offset
+
+    return mfd(ao.coil, ρ, z - z₀)
+end
+
+"""
+    mfd(sp::Superposition, ρ::Float64, z::Float64)
+
+The vectorial magnetic flux density due to a superposition of coils.
+
+# Arguments
+- `sp::Superposition`: The coil made of superpositions of coils.
+- `ρ::Float64`: The radial coordinate in meters.
+- `z::Float64`: The axial coordinate in meters.
+
+# Returns
+- `Vector{Float64}`: The vectorial magnetic flux density in Gauss.
+"""
+function mfd(sp::Superposition, ρ::Float64, z::Float64)
+    B = [0 0]
+
+    for coil in sp.coils
+        B += mfd(coil, ρ, z)
+    end
+
+    return B
+end
