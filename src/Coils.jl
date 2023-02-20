@@ -1,9 +1,11 @@
 module Coils
 
-export CurrentLoop, mfd, wires
+export CurrentLoop
+export mfd
+export wires
 
 include("types.jl")
-include("geometric.jl")
-include("magnetic.jl")
+include("wires.jl")
+include("mfd.jl")
 
 end # module Coils
