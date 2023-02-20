@@ -1,3 +1,5 @@
+export wires
+
 """
     wires(cl::CurrentLoop)
 

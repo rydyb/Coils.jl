@@ -87,7 +87,7 @@ Given these constraints, we are left to vary the number of radial and axial turn
 
 # ╔═╡ Cell order:
 # ╠═ae9a85d0-b0f2-11ed-161e-f355a5ee436b
-# ╟─d5e4c4f6-7b9f-483b-b517-45ecfa59930c
+# ╠═d5e4c4f6-7b9f-483b-b517-45ecfa59930c
 # ╟─0131c72f-2d93-4d2a-b7a5-e77ce9f2e427
 # ╟─10d5d068-8284-4b8b-a3f0-f797bd7e95e6
 # ╟─61b7899e-e146-49ba-86ad-125f6ce4fb95
