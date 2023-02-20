@@ -18,7 +18,7 @@ end
 begin
 	using Pkg
 
-	Pkg.add(url="https://github.com/ryd-yb/Coils.jl#main")
+	Pkg.develop(url="https://github.com/ryd-yb/Coils.jl#main")
 end
 
 # ╔═╡ fc5fe978-dd7c-47f0-ad16-d11fbeff66c1
@@ -65,8 +65,8 @@ let
 	)
 
 	ρz = wires(cl)
-	vline!(p2, ρi[:, 1], label="")
-	vline!(p1, zi[:, 2], label="")
+	vline!(p2, ρz[:, 1], label="")
+	vline!(p1, ρz[:, 2], label="")
 
 	plot(p1, p2)
 end

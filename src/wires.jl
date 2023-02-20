@@ -14,7 +14,7 @@ Returns the cylindrical coordinates of a current loop centered at the origin.
 function wires(cl::CurrentLoop)
     R = cl.radius
 
-    return [(R, 0)]
+    return [[R 0]]
 end
 
 """
