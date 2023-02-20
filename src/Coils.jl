@@ -1,6 +1,6 @@
 module Coils
 
-export CurrentLoop
+export Coil, CurrentLoop, AxialOffset, Superposition, Solenoid
 export mfd
 export wires
 

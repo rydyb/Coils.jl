@@ -1,3 +1,5 @@
+export Coil, CurrentLoop, AxialOffset, Superposition, Solenoid
+
 """
     Coil
 
