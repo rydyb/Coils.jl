@@ -1,25 +1,21 @@
 """
-    Fluid(density::Float64, velocity::Float64, viscosity::Float64)
-
 A fluid.
 """
-struct Fluid
-  density::Float64
-  velocity::Float64
-  viscosity::Float64
-  heat_capacity::Float64
-  thermal_conductivity::Float64
+struct Fluid{T}
+  density::T
+  velocity::T
+  viscosity::T
+  heat_capacity::T
+  thermal_conductivity::T
 end
 
 """
-  Flow(fluid::Fluid, hydraulic_diameter::Float64)
-
 A flow.
 """
-struct Flow
+struct Flow{T}
   fluid::Fluid
-  hydraulic_diameter::Float64
-  characteristic_length::Float64
+  hydraulic_diameter::T
+  characteristic_length::T
 end
 
 """

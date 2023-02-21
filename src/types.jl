@@ -11,14 +11,10 @@ abstract type Coil end
     CurrentLoop(current, radius)
 
 A current loop with a given current and radius centered at the origin.
-
-# Arguments
-- `current::Float64`: The current in the loop in Amps.
-- `radius::Float64`: The radius of the loop in meters.
 """
-struct CurrentLoop <: Coil
-    current::Float64
-    radius::Float64
+struct CurrentLoop{T} <: Coil
+    current::T
+    radius::T
 end
 
 """
@@ -26,9 +22,9 @@ end
 
 A coil shifted axialy with respect to the origin.
 """
-struct AxialOffset <: Coil
+struct AxialOffset{T} <: Coil
     coil::Coil
-    offset::Float64
+    offset::T
 end
 
 """
@@ -57,12 +53,12 @@ export Solenoid, Helmholtz, AntiHelmholtz
 Creates a superposition representing a solenoid with a given current, inner radius, axial turns, axial spacing, radial turns, and radial spacing.
 
 # Arguments
-- `current::Float64`: The current in the solenoid in Amps.
-- `inner_radius::Float64`: The inner radius of the solenoid in meters.
+- `current`: The current in the solenoid in Amps.
+- `inner_radius`: The inner radius of the solenoid in meters.
 - `axial_turns::Int`: The number of axial turns in the solenoid.
-- `axial_spacing::Float64`: The axial spacing between turns in meters.
+- `axial_spacing`: The axial spacing between turns in meters.
 - `radial_turns::Int`: The number of radial turns in the solenoid.
-- `radial_spacing::Float64`: The radial spacing between turns in meters.
+- `radial_spacing`: The radial spacing between turns in meters.
 
 # Returns
 - `::Superposition`: A superposition representing the solenoid.
@@ -91,7 +87,7 @@ Creates a superposition representing a Helmholtz coil with a given solenoid and 
 
 # Arguments
 - `solenoid::Coil`: The solenoid.
-- `separation::Float64`: The separation between the solenoids in meters.
+- `separation`: The separation between the solenoids in meters.
 
 # Returns
 - `::Superposition`: A superposition representing the Helmholtz coil.
