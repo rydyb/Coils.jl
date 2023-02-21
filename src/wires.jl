@@ -32,7 +32,7 @@ function wires(ao::AxialOffset)
     cl = ao.coil
     z₀ = ao.offset
 
-    return [(ρ, z + z₀) for (ρ, z) in wires(cl)]
+    return [[ρ z + z₀] for (ρ, z) in wires(cl)]
 end
 
 """
@@ -47,5 +47,5 @@ Returns the cylindrical coordinates of a superposition of coils.
 - `Vector{Tuple{Float64, Float64}}`: A vector of tuples containing the radial and axial coordinate of each wire.
 """
 function wires(sp::Superposition)
-    return [(ρ, z) for c in sp.coils for (ρ, z) in wires(c)]
+    return [[ρ z] for c in sp.coils for (ρ, z) in wires(c)]
 end

@@ -8,5 +8,21 @@ Users can specify the geometry, number of turns, and coil wire size, and the lib
 
 ```julia
 using Pkg
+
 Pkg.add("https://github.com/ryd-yb/Coils.jl")
+```
+
+## Usage
+
+See the notebooks in `example`:
+
+```julia
+using Pkg
+
+Pkg.activate(".")
+Pkg.instantiate()
+
+using Pluto
+
+Pluto.run()
 ```
