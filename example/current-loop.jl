@@ -6,23 +6,18 @@ using InteractiveUtils
 
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
-  quote
-    local iv = try
-      Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value
-    catch
-      b -> missing
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
     end
-    local el = $(esc(element))
-    global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-    el
-  end
 end
 
 # ╔═╡ c94bc61a-6d24-4292-b796-a1b801752ba0
 begin
   using Pkg
-
-  Pkg.activate("..")
+  Pkg.activate(".")
 end
 
 # ╔═╡ fc5fe978-dd7c-47f0-ad16-d11fbeff66c1
@@ -174,8 +169,8 @@ let
 end
 
 # ╔═╡ Cell order:
-# ╟─c94bc61a-6d24-4292-b796-a1b801752ba0
-# ╟─fc5fe978-dd7c-47f0-ad16-d11fbeff66c1
+# ╠═c94bc61a-6d24-4292-b796-a1b801752ba0
+# ╠═fc5fe978-dd7c-47f0-ad16-d11fbeff66c1
 # ╟─b198599a-6bae-4b7c-a4f7-72f29966d54e
 # ╟─9943a035-7183-4a48-a30e-c505cfb0cf4e
 # ╟─771005d7-637c-45d0-98db-4dd4e8ff8973
