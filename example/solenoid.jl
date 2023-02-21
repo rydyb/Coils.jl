@@ -6,19 +6,23 @@ using InteractiveUtils
 
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
+  quote
+    local iv = try
+      Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value
+    catch
+      b -> missing
     end
+    local el = $(esc(element))
+    global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+    el
+  end
 end
 
 # ╔═╡ 140dfe30-b11e-11ed-2cb0-f5987396b78b
 begin
-	using Pkg
+  using Pkg
 
-	Pkg.activate("..")
+  Pkg.activate("..")
 end
 
 # ╔═╡ 1f3f019c-6991-480e-b74a-f632a9f874b9
@@ -56,63 +60,63 @@ solenoid = Solenoid(current, inner_radius, axial_turns, axial_spacing, radial_tu
 ρ = LinRange(0.0, 1.5inner_radius, 100);
 
 # ╔═╡ 06ae6131-f183-4594-85ac-ecc8663b8b7d
-z = LinRange(-axial_turns*axial_spacing, axial_turns*axial_spacing, 100);
+z = LinRange(-axial_turns * axial_spacing, axial_turns * axial_spacing, 100);
 
 # ╔═╡ 628c0e45-c0f9-40ab-bf20-39ee56003865
 let
-	B_axial = reduce(vcat, mfd.(Ref(solenoid), 0.0, z)) ./ 1e-4
-	B_radial = reduce(vcat, mfd.(Ref(solenoid), ρ, 0.0)) ./ 1e-4
-	
-	p1 = plot(z, B_axial,
-		seriestype=:scatter,
-		markers=[:circle :hex],
-		labels=["Bρ" "Bz"],
-		title="Axial ρ=0",
-		xlabel="Axial coordinate z (m)",
-		ylabel="Magnetic flux density B (G)",
-	)
-	p2 =plot(ρ, B_radial,
-		seriestype=:scatter,
-		markers=[:circle :hex],
-		labels=["Bρ" "Bz"],
-		title="Radial z=0",
-		xlabel="Radial coordinate ρ (m)",
-		ylabel="Magnetic flux density B (G)",
-	)
+  B_axial = reduce(vcat, mfd.(Ref(solenoid), 0.0, z))
+  B_radial = reduce(vcat, mfd.(Ref(solenoid), ρ, 0.0))
 
-	ρz = reduce(vcat, wires(solenoid))
-	vline!(p2, ρz[:, 1], label="")
-	vline!(p1, ρz[:, 2], label="")
+  p1 = plot(z, B_axial,
+    seriestype=:scatter,
+    markers=[:circle :hex],
+    labels=["Bρ" "Bz"],
+    title="Axial ρ=0",
+    xlabel="Axial coordinate z (m)",
+    ylabel="Magnetic flux density B (G)",
+  )
+  p2 = plot(ρ, B_radial,
+    seriestype=:scatter,
+    markers=[:circle :hex],
+    labels=["Bρ" "Bz"],
+    title="Radial z=0",
+    xlabel="Radial coordinate ρ (m)",
+    ylabel="Magnetic flux density B (G)",
+  )
 
-	plot(p1, p2)
+  ρz = reduce(vcat, wires(solenoid))
+  vline!(p2, ρz[:, 1], label="")
+  vline!(p1, ρz[:, 2], label="")
+
+  plot(p1, p2)
 end
 
 # ╔═╡ 6ab67973-2e3a-4a45-93cf-c027d55ffccc
 let
-	B = [mfd(solenoid, ρi, zi) for zi in z, ρi in ρ] ./ 1e-4
-	Bρ = map(B -> B[1], B)
-	Bz = map(B -> B[2], B)
+  B = [mfd(solenoid, ρi, zi) for zi in z, ρi in ρ]
+  Bρ = map(B -> B[1], B)
+  Bz = map(B -> B[2], B)
 
-	p1 = heatmap(ρ, z, Bρ,
-		c=:viridis,
-		transpose=1,
-		title="Radial component (G)",
-		xlabel="Radial coordinate ρ (m)",
-		ylabel="Axial coordinate z (m)",
-	)
+  p1 = heatmap(ρ, z, Bρ,
+    c=:viridis,
+    transpose=1,
+    title="Radial component (G)",
+    xlabel="Radial coordinate ρ (m)",
+    ylabel="Axial coordinate z (m)",
+  )
 
-	p2 =heatmap(ρ, z, Bz,
-		c=:viridis,
-		title="Axial component (G)",
-		xlabel="Radial coordinate ρ (m)",
-		ylabel="Axial coordinate z (m)",
-	)
+  p2 = heatmap(ρ, z, Bz,
+    c=:viridis,
+    title="Axial component (G)",
+    xlabel="Radial coordinate ρ (m)",
+    ylabel="Axial coordinate z (m)",
+  )
 
-	ρz = reduce(vcat, wires(solenoid))
-	scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
-	scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
+  ρz = reduce(vcat, wires(solenoid))
+  scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
+  scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 
-	plot(p1, p2, plot_title="Magnetic flux density")
+  plot(p1, p2, plot_title="Magnetic flux density")
 end
 
 # ╔═╡ Cell order:

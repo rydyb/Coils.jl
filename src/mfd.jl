@@ -51,7 +51,7 @@ function mfd(cl::CurrentLoop, ρ::Float64, z::Float64)
         Bz = 0
     end
 
-    return [Bρ Bz] ./ 1e4
+    return [Bρ Bz] ./ 1e-4
 end
 
 """
@@ -94,4 +94,21 @@ function mfd(sp::Superposition, ρ::Float64, z::Float64)
     end
 
     return B
+end
+
+"""
+    mfd(rc::ReverseCurrent, ρ::Float64, z::Float64)
+
+The vectorial magnetic flux density due to a coil with a reversed current.
+
+# Arguments
+- `rc::ReverseCurrent`: The coil with a reversed current.
+- `ρ::Float64`: The radial coordinate in meters.
+- `z::Float64`: The axial coordinate in meters.
+
+# Returns
+- `Vector{Float64}`: The vectorial magnetic flux density in Gauss.
+"""
+function mfd(rc::ReverseCurrent, ρ::Float64, z::Float64)
+    return -mfd(rc.coil, ρ, z)
 end
