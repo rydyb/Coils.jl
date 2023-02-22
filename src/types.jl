@@ -3,125 +3,99 @@ export Coil, CurrentLoop, AxialOffset, ReverseCurrent, Superposition
 """
     Coil
 
-An abstract type for coils.
+An abstract type for a magnetic coil.
 """
 abstract type Coil end
 
 """
-    CurrentLoop(current, radius)
+    CurrentLoop(current, radius, height)
 
-A current loop with a given current and radius centered at the origin.
-
-# Arguments
-- `current::Float64`: The current in the loop in Amps.
-- `radius::Float64`: The radius of the loop in meters.
+A current loop with a given current, radius, and height centered at the origin.
 """
 struct CurrentLoop <: Coil
-    current::Float64
-    radius::Float64
+    current::Unitful.Current
+    radius::Unitful.Length
+    height::Unitful.Length
+
+    CurrentLoop(current::Unitful.Current, radius::Unitful.Length) = new(current, radius, 0u"m")
 end
 
 """
-    AxialOffset(coil, offset)
+    PancakeCoil(current, inner_radius, outer_radius, turns, height)
 
-A coil shifted axialy with respect to the origin.
+A pancake coil with a given current, inner radius, outer radius, height and number of turns centered at the origin.
 """
-struct AxialOffset <: Coil
-    coil::Coil
-    offset::Float64
+struct PancakeCoil <: Coil
+    current::Unitful.Current
+    inner_radius::Unitful.Length
+    outer_radius::Unitful.Length
+    turns::UInt8
+    height::Unitful.Length
+
+    PancakeCoil(current::Unitful.Current, inner_radius::Unitful.Length, outer_radius::Unitful.Length, turns::UInt8) = new(current, inner_radius, outer_radius, turns, 0u"m")
 end
 
 """
-    ReverseCurrent(coil)
+    SolenoidCoil(current, radius, length, turns, height)
 
-A coil with the current reversed.
+A solenoid coil with a given current, radius, length, height, and number of turns centered at the origin.
 """
-struct ReverseCurrent <: Coil
-    coil::Coil
+struct SolenoidCoil <: Coil
+    current::Unitful.Current
+    radius::Unitful.Length
+    length::Unitful.Length
+    turns::UInt8
+    height::Unitful.Length
+
+    SolenoidCoil(current::Unitful.Current, radius::Unitful.Length, length::Unitful.Length, turns::UInt8) = new(current, radius, length, turns, 0u"m")
 end
 
 """
-    Superposition(coils::Vector{::Coil})
+    HelicalCoil(current, inner_radius, outer_radius, length, axial_turns, radial_turns, height)
+
+A helical coil with a given current, inner radius, outer radius, height, number of axial turns, number of radial turns, and height centered at the origin.
+"""
+struct HelicalCoil <: Coil
+    current::Unitful.Current
+    inner_radius::Unitful.Length
+    outer_radius::Unitful.Length
+    length::Unitful.Length
+    axial_turns::UInt8
+    radial_turns::UInt8
+    height::Unitful.Length
+end
+
+"""
+    CoilOperation
+
+An abstract type for a coil operation
+"""
+abstract type CoilOperation end
+
+"""
+    Superposition(coils::Vector{Coil})
 
 A superposition of coils.
 """
-struct Superposition <: Coil
+struct Superposition <: CoilOperation
     coils::Vector{Coil}
 end
 
-export Solenoid, Helmholtz, AntiHelmholtz
-
 """
-    Solenoid(current, inner_radius, axial_turns, axial_spacing, radial_turns, radial_spacing)
+    Translation(coil::Coil, axial_shift::Unitful.Length)
 
-Creates a superposition representing a solenoid with a given current, inner radius, axial turns, axial spacing, radial turns, and radial spacing.
-
-# Arguments
-- `current::Float64`: The current in the solenoid in Amps.
-- `inner_radius::Float64`: The inner radius of the solenoid in meters.
-- `axial_turns::Int`: The number of axial turns in the solenoid.
-- `axial_spacing::Float64`: The axial spacing between turns in meters.
-- `radial_turns::Int`: The number of radial turns in the solenoid.
-- `radial_spacing::Float64`: The radial spacing between turns in meters.
-
-# Returns
-- `::Superposition`: A superposition representing the solenoid.
+A translation of a coil along the z-axis.
 """
-function Solenoid(current, inner_radius, axial_turns, axial_spacing, radial_turns, radial_spacing)
-    coils = Vector{Coil}(undef, axial_turns * radial_turns)
-
-    height = axial_turns * axial_spacing
-
-    for i in 1:axial_turns
-        for j in 1:radial_turns
-            z = (i - 1) * axial_spacing - height / 4
-            ρ = inner_radius + (j - 1) * radial_spacing
-
-            coils[(i-1)*radial_turns+j] = AxialOffset(CurrentLoop(current, ρ), z)
-        end
-    end
-
-    return Superposition(coils)
+struct Translation <: CoilOperation
+    coil::Coil
+    axial_shift::Unitful.Length
 end
 
 """
-    Helmholtz(solenoid::Coil, separation)
+    CurrentInversion(coil::Coil)
 
-Creates a superposition representing a Helmholtz coil with a given solenoid and separation.
-
-# Arguments
-- `solenoid::Coil`: The solenoid.
-- `separation::Float64`: The separation between the solenoids in meters.
-
-# Returns
-- `::Superposition`: A superposition representing the Helmholtz coil.
+A current inversion of a coil.
 """
-function Helmholtz(solenoid::Coil, separation)
-    coils = Vector{Coil}(undef, 2)
-
-    coils[1] = AxialOffset(solenoid, +separation / 2)
-    coils[2] = AxialOffset(solenoid, -separation / 2)
-
-    return Superposition(coils)
-end
-
-"""
-    AntiHelmholtz(solenoid::Coil, separation)
-
-Creates a superposition representing an anti-Helmholtz coil with a given solenoid and separation.
-
-# Arguments
-- `solenoid::Coil`: The solenoid.
-- `separation::Float64`: The separation between the solenoids in meters.
-
-# Returns
-- `::Superposition`: A superposition representing the anti-Helmholtz coil.
-"""
-function AntiHelmholtz(solenoid::Coil, separation)
-    coils = Vector{Coil}(undef, 2)
-
-    coils[1] = AxialOffset(solenoid, +separation / 2)
-    coils[2] = ReverseCAxialOffset(solenoid, -separation / 2)
-
-    return Superposition(coils)
+struct CurrentInversion <: CoilOperation
+    coil::Coil
 end

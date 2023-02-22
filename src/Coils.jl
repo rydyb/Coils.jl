@@ -1,5 +1,7 @@
 module Coils
 
+using Unitful
+
 export Coil, CurrentLoop, AxialOffset, ReverseCurrent, Superposition
 export Solenoid, Helmholtz, AntiHelmholtz
 export mfd
