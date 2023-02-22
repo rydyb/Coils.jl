@@ -1,13 +1,11 @@
 using Unitful
 using PhysicalConstants.CODATA2018: μ_0
 
-μ₀ = ustrip(u"N/A^2", μ_0)
-
 # https://de.wikipedia.org/wiki/Leiterschleife
-current_loop_mfd_z(I, R, z) = (μ₀ * I / 2) * R^2 / (R^2 + z^2)^(3 / 2) / 1e4
+current_loop_mfd_z(I, R, z) = (μ_0 * I / 2) * R^2 / (R^2 + z^2)^(3 / 2)
 
 # https://en.wikipedia.org/wiki/Solenoid
-solenoid_mfd_z(I, N, L) = μ₀ * I * N / L / 1e4
+solenoid_mfd_z(I, N, L) = μ_0 * I * N / L / 1e4
 
 @testset "mfd" begin
 

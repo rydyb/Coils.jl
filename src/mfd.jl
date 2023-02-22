@@ -9,14 +9,14 @@ export mfd
 
 The vectorial magnetic flux density of a current inverted coil in cylindrical coordinates.
 """
-mfd(current_inversion::CurrentInversion, ρ, z) = -mfd(current_inversion.coil, ρ, z)
+#mfd(current_inversion::CurrentInversion, ρ, z) = -mfd(current_inversion.coil, ρ, z)
 
 """
     mfd(translation::Translation, ρ, z)
 
 The vectorial magnetic flux density of a translated coil in cylindrical coordinates.
 """
-mfd(translation::Translation, ρ, z) = mfd(translation.coil, ρ, z - translation.axial_shift)
+#mfd(translation::Translation, ρ, z) = mfd(translation.coil, ρ, z - translation.axial_shift)
 
 """
     mfd(superposition::Superposition, ρ, z)
