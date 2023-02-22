@@ -18,7 +18,7 @@ end
 begin
 	using Pkg
 
-	Pkg.activate("..")
+	Pkg.activate(".")
 end
 
 # ╔═╡ d5e4c4f6-7b9f-483b-b517-45ecfa59930c
