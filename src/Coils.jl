@@ -4,7 +4,7 @@ using Unitful
 
 export Coil, CurrentLoop, AxialOffset, ReverseCurrent, Superposition
 export Solenoid, Helmholtz, AntiHelmholtz
-export mfd
+export mfd, mfd_z
 export wires
 
 include("types.jl")

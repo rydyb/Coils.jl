@@ -2,7 +2,7 @@ using Elliptic
 using Unitful
 using PhysicalConstants.CODATA2018: μ_0
 
-export mfd
+export mfd, mfd_z
 
 """
     mfd(coil::CurrentInversion, ρ, z)
@@ -53,15 +53,45 @@ function mfd(current_loop::CurrentLoop, ρ, z)
     Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
     # Bρ diverges for ρ -> 0
-    if ρ == 0
-        Bρ = 0
+    if ρ == 0u"m"
+        Bρ = 0u"T"
     end
 
     # α becomes zero for z -> 0 when ρ -> R
-    if z == 0 && isapprox(R, ρ; rtol=1e-4)
-        Bρ = 0
-        Bz = 0
+    if z == 0u"m" && R ≈ ρ
+        Bρ = 0u"T"
+        Bz = 0u"T"
     end
 
     return [Bρ Bz]
+end
+
+mfd(c::Helical, ρ, z) = mfd(Superposition(c), ρ, z)
+
+# https://de.wikipedia.org/wiki/Leiterschleife
+function mfd_z(c::CurrentLoop, z)
+    I = c.current
+    R = c.radius
+
+    Bz = (μ_0 * I / 2) * R^2 / (R^2 + z^2)^(3 / 2)
+
+    return [0u"T" Bz]
+end
+
+# https://en.wikipedia.org/wiki/Solenoid
+function mfd_z(c::Helical, z)
+    if (c.radial_turns > 1)
+        throw(ArgumentError("Only solenoids are supported"))
+    end
+    if (!isapprox(z, c.height))
+        throw(ArgumentError("Can only give the magnetic flux density inside the solenoid"))
+    end
+
+    I = c.current
+    N = c.axial_turns
+    L = c.length
+
+    Bz = μ_0 * I * N / L
+
+    return [0u"T" Bz]
 end

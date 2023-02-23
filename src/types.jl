@@ -18,7 +18,6 @@ struct CurrentLoop{C<:Unitful.Current,R<:Unitful.Length,H<:Unitful.Length} <: Co
     height::H
 end
 
-CurrentLoop(current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length) = CurrentLoop{typeof(current),typeof(radius),typeof(height)}(current, radius, height)
 CurrentLoop(current::Unitful.Current, radius::Unitful.Length) = CurrentLoop(current, radius, 0u"m")
 
 """
@@ -26,7 +25,15 @@ CurrentLoop(current::Unitful.Current, radius::Unitful.Length) = CurrentLoop(curr
 
 A helical coil with a given current, inner radius, outer radius, height, number of axial turns, number of radial turns, and height centered at the origin.
 """
-struct Helical{C<:Unitful.Current,IR<:Unitful.Length,OR<:Unitful.Length,L<:Unitful.Length,AT<:Unsigned,RT<:Unsigned,H<:Unitful.Length} <: Coil
+struct Helical{
+    C<:Unitful.Current,
+    IR<:Unitful.Length,
+    OR<:Unitful.Length,
+    L<:Unitful.Length,
+    AT<:Unsigned,
+    RT<:Unsigned,
+    H<:Unitful.Length,
+} <: Coil
     current::C
     inner_radius::IR
     outer_radius::OR
@@ -36,14 +43,42 @@ struct Helical{C<:Unitful.Current,IR<:Unitful.Length,OR<:Unitful.Length,L<:Unitf
     height::H
 end
 
-Helical(current::Unitful.Current, inner_radius::Unitful.Length, outer_radius::Unitful.Length, length::Unitful.Length, axial_turns::Unsigned, radial_turns::Unsigned) = Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns, 0u"m")
-Helical(current::Unitful.Current, inner_radius::Unitful.Length, outer_radius::Unitful.Length, length::Unitful.Length, axial_turns::Unsigned, radial_turns::Unsigned, height::Unitful.Length) = Helical{typeof(current),typeof(inner_radius),typeof(outer_radius),typeof(length),typeof(axial_turns),typeof(radial_turns),typeof(height)}(current, inner_radius, outer_radius, length, axial_turns, radial_turns, height)
+Helical(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    length::Unitful.Length,
+    axial_turns::Unsigned,
+    radial_turns::Unsigned,
+) = Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns, 0u"m")
 
-Pancake(current::Unitful.Current, inner_radius::Unitful.Length, outer_radius::Unitful.Length, turns::Unsigned) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns, height)
-Pancake(current::Unitful.Current, inner_radius::Unitful.Length, outer_radius::Unitful.Length, turns::Unsigned, height::Unitful.Length) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns, height)
+Pancake(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    turns::Unsigned,
+) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns)
+Pancake(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    turns::Unsigned,
+    height::Unitful.Length,
+) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns, height)
 
-Solenoid(current::Unitful.Current, radius::Unitful.Length, length::Unitful.Length, turns::Unsigned, height::Unitful.Length) = Helical(current, radius, radius, length, UInt8(1), turns, height)
-Solenoid(current::Unitful.Current, radius::Unitful.Length, length::Unitful.Length, turns::Unsigned) = Helical(current, radius, radius, length, UInt8(1), turns)
+Solenoid(
+    current::Unitful.Current,
+    radius::Unitful.Length,
+    length::Unitful.Length,
+    turns::Unsigned,
+    height::Unitful.Length,
+) = Helical(current, radius, radius, length, turns, UInt8(1), height)
+Solenoid(
+    current::Unitful.Current,
+    radius::Unitful.Length,
+    length::Unitful.Length,
+    turns::Unsigned,
+) = Helical(current, radius, radius, length, turns, UInt8(1))
 
 """
     Virtual
@@ -60,6 +95,10 @@ A superposition of coils.
 struct Superposition <: Virtual
     coils::Vector{Coil}
 
+    function Superposition(coils::Vector{<:Coil})
+        return new(coils)
+    end
+
     """
         Superposition(c::Helical)
 
@@ -68,10 +107,10 @@ struct Superposition <: Virtual
     function Superposition(c::Helical)
         coils = Vector{Coil}(undef, c.axial_turns * c.radial_turns)
 
-        for i in 1:c.radial_turns
+        for i = 1:c.radial_turns
             radius = c.inner_radius + (c.outer_radius - c.inner_radius) * (i - 1)
 
-            for j in 1:c.axial_turns
+            for j = 1:c.axial_turns
                 axial_shift = c.height - c.length / 2 + c.length * (j - 1)
 
                 coils[(i-1)*c.axial_turns+j] = CurrentLoop(c.current, radius, axial_shift)
