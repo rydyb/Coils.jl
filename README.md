@@ -4,8 +4,6 @@
 |:-----------------------------------------:|:-------------------------------:|
 | [![][CI-img]][CI-url] | [![][codecov-img]][codecov-url] |
 
-[![CI]()]()
-
 Coils.jl is a Julia library that provides various types and functions for engineering magnetic coils made of rectangular hollow core wire.
 
 ## Installation
