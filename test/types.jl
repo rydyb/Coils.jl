@@ -19,9 +19,8 @@
     end
 
     @testset "Superposition" begin
-        # don't know why this fails
-        #@test Superposition(Helical(1u"A", 10u"mm", 10u"mm", 0u"mm", UInt8(1), UInt8(1))) ==
-        #      Superposition([CurrentLoop(1u"A", 10u"mm", 0.0u"m")]) 
+        @test Superposition(Helical(1u"A", 10u"mm", 10u"mm", 0u"mm", UInt8(1), UInt8(1))) ==
+              Superposition([CurrentLoop(1u"A", 10u"mm", 0.0u"m")])
     end
 
 end

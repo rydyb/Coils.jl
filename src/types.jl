@@ -95,6 +95,8 @@ A superposition of coils.
 struct Superposition{T<:Coil} <: Virtual
     coils::Vector{T}
 
+    Superposition(coils::Vector{T}) where {T<:Coil} = new{T}(coils)
+
     """
         Superposition(c::Helical)
 
@@ -104,12 +106,22 @@ struct Superposition{T<:Coil} <: Virtual
         coils = Vector{CurrentLoop}(undef, c.axial_turns * c.radial_turns)
 
         for i = 1:c.radial_turns
-            radius = c.inner_radius + (c.outer_radius - c.inner_radius) * (i - 1)
+            if c.radial_turns == 1
+                radius = (c.inner_radius + c.outer_radius) / 2
+            else
+                radius =
+                    c.inner_radius +
+                    (c.outer_radius - c.inner_radius) * (i - 1) / (c.radial_turns - 1)
+            end
 
             for j = 1:c.axial_turns
-                axial_shift = c.height - c.length / 2 + c.length * (j - 1)
+                if c.axial_turns == 1
+                    height = c.height
+                else
+                    height = c.height - c.length / 2 + c.length * (j - 1) / (c.axial_turns - 1)
+                end
 
-                coils[(i-1)*c.axial_turns+j] = CurrentLoop(c.current, radius, axial_shift)
+                coils[(i-1)*c.axial_turns+j] = CurrentLoop(c.current, radius, height)
             end
         end
 
