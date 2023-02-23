@@ -92,12 +92,8 @@ abstract type Virtual end
 
 A superposition of coils.
 """
-struct Superposition <: Virtual
-    coils::Vector{Coil}
-
-    function Superposition(coils::Vector{<:Coil})
-        return new(coils)
-    end
+struct Superposition{T<:Coil} <: Virtual
+    coils::Vector{T}
 
     """
         Superposition(c::Helical)
@@ -105,7 +101,7 @@ struct Superposition <: Virtual
     Represents a helical coil as a superposition of current loops.
     """
     function Superposition(c::Helical)
-        coils = Vector{Coil}(undef, c.axial_turns * c.radial_turns)
+        coils = Vector{CurrentLoop}(undef, c.axial_turns * c.radial_turns)
 
         for i = 1:c.radial_turns
             radius = c.inner_radius + (c.outer_radius - c.inner_radius) * (i - 1)
@@ -117,6 +113,6 @@ struct Superposition <: Virtual
             end
         end
 
-        return new(coils)
+        return new{CurrentLoop}(coils)
     end
 end

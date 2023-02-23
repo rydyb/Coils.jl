@@ -5,20 +5,6 @@ using PhysicalConstants.CODATA2018: μ_0
 export mfd, mfd_z
 
 """
-    mfd(coil::CurrentInversion, ρ, z)
-
-The vectorial magnetic flux density of a current inverted coil in cylindrical coordinates.
-"""
-#mfd(current_inversion::CurrentInversion, ρ, z) = -mfd(current_inversion.coil, ρ, z)
-
-"""
-    mfd(translation::Translation, ρ, z)
-
-The vectorial magnetic flux density of a translated coil in cylindrical coordinates.
-"""
-#mfd(translation::Translation, ρ, z) = mfd(translation.coil, ρ, z - translation.axial_shift)
-
-"""
     mfd(superposition::Superposition, ρ, z)
 
 The vectorial magnetic flux density of a superposition of coils in cylindrical coordinates.
@@ -53,12 +39,12 @@ function mfd(current_loop::CurrentLoop, ρ, z)
     Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
     # Bρ diverges for ρ -> 0
-    if ρ == 0u"m"
+    if iszero(ρ)
         Bρ = 0u"T"
     end
 
     # α becomes zero for z -> 0 when ρ -> R
-    if z == 0u"m" && R ≈ ρ
+    if iszero(z) && R ≈ ρ
         Bρ = 0u"T"
         Bz = 0u"T"
     end
