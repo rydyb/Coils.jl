@@ -1,127 +1,118 @@
-export Coil, CurrentLoop, AxialOffset, ReverseCurrent, Superposition
+export Coil, CurrentLoop, Pancake, Solenoid, Helical
 
 """
     Coil
 
-An abstract type for coils.
+An abstract type for a magnetic coil.
 """
 abstract type Coil end
 
 """
-    CurrentLoop(current, radius)
+    CurrentLoop(current, radius, height)
 
-A current loop with a given current and radius centered at the origin.
-
-# Arguments
-- `current::Float64`: The current in the loop in Amps.
-- `radius::Float64`: The radius of the loop in meters.
+A current loop with a given current, radius, and height centered at the origin.
 """
-struct CurrentLoop <: Coil
-    current::Float64
-    radius::Float64
+struct CurrentLoop{C<:Unitful.Current,R<:Unitful.Length,H<:Unitful.Length} <: Coil
+    current::C
+    radius::R
+    height::H
 end
 
-"""
-    AxialOffset(coil, offset)
+CurrentLoop(current::Unitful.Current, radius::Unitful.Length) = CurrentLoop(current, radius, 0u"m")
 
-A coil shifted axialy with respect to the origin.
 """
-struct AxialOffset <: Coil
-    coil::Coil
-    offset::Float64
+    Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns, height)
+
+A helical coil with a given current, inner radius, outer radius, height, number of axial turns, number of radial turns, and height centered at the origin.
+"""
+struct Helical{
+    C<:Unitful.Current,
+    IR<:Unitful.Length,
+    OR<:Unitful.Length,
+    L<:Unitful.Length,
+    AT<:Unsigned,
+    RT<:Unsigned,
+    H<:Unitful.Length,
+} <: Coil
+    current::C
+    inner_radius::IR
+    outer_radius::OR
+    length::L
+    axial_turns::AT
+    radial_turns::RT
+    height::H
 end
 
-"""
-    ReverseCurrent(coil)
+Helical(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    length::Unitful.Length,
+    axial_turns::Unsigned,
+    radial_turns::Unsigned,
+) = Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns, 0u"m")
 
-A coil with the current reversed.
-"""
-struct ReverseCurrent <: Coil
-    coil::Coil
-end
+Pancake(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    turns::Unsigned,
+) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns)
+Pancake(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    turns::Unsigned,
+    height::Unitful.Length,
+) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns, height)
+
+Solenoid(
+    current::Unitful.Current,
+    radius::Unitful.Length,
+    length::Unitful.Length,
+    turns::Unsigned,
+    height::Unitful.Length,
+) = Helical(current, radius, radius, length, turns, UInt8(1), height)
+Solenoid(
+    current::Unitful.Current,
+    radius::Unitful.Length,
+    length::Unitful.Length,
+    turns::Unsigned,
+) = Helical(current, radius, radius, length, turns, UInt8(1))
 
 """
-    Superposition(coils::Vector{::Coil})
+    Virtual
+
+An abstract type for a virtual coil.
+"""
+abstract type Virtual end
+
+"""
+    Superposition(coils::Vector{Coil})
 
 A superposition of coils.
 """
-struct Superposition <: Coil
-    coils::Vector{Coil}
-end
+struct Superposition{T<:Coil} <: Virtual
+    coils::Vector{T}
 
-export Solenoid, Helmholtz, AntiHelmholtz
+    """
+        Superposition(c::Helical)
 
-"""
-    Solenoid(current, inner_radius, axial_turns, axial_spacing, radial_turns, radial_spacing)
+    Represents a helical coil as a superposition of current loops.
+    """
+    function Superposition(c::Helical)
+        coils = Vector{CurrentLoop}(undef, c.axial_turns * c.radial_turns)
 
-Creates a superposition representing a solenoid with a given current, inner radius, axial turns, axial spacing, radial turns, and radial spacing.
+        for i = 1:c.radial_turns
+            radius = c.inner_radius + (c.outer_radius - c.inner_radius) * (i - 1)
 
-# Arguments
-- `current::Float64`: The current in the solenoid in Amps.
-- `inner_radius::Float64`: The inner radius of the solenoid in meters.
-- `axial_turns::Int`: The number of axial turns in the solenoid.
-- `axial_spacing::Float64`: The axial spacing between turns in meters.
-- `radial_turns::Int`: The number of radial turns in the solenoid.
-- `radial_spacing::Float64`: The radial spacing between turns in meters.
+            for j = 1:c.axial_turns
+                axial_shift = c.height - c.length / 2 + c.length * (j - 1)
 
-# Returns
-- `::Superposition`: A superposition representing the solenoid.
-"""
-function Solenoid(current, inner_radius, axial_turns, axial_spacing, radial_turns, radial_spacing)
-    coils = Vector{Coil}(undef, axial_turns * radial_turns)
-
-    height = axial_turns * axial_spacing
-
-    for i in 1:axial_turns
-        for j in 1:radial_turns
-            z = (i - 1) * axial_spacing - height / 4
-            ρ = inner_radius + (j - 1) * radial_spacing
-
-            coils[(i-1)*radial_turns+j] = AxialOffset(CurrentLoop(current, ρ), z)
+                coils[(i-1)*c.axial_turns+j] = CurrentLoop(c.current, radius, axial_shift)
+            end
         end
+
+        return new{CurrentLoop}(coils)
     end
-
-    return Superposition(coils)
-end
-
-"""
-    Helmholtz(solenoid::Coil, separation)
-
-Creates a superposition representing a Helmholtz coil with a given solenoid and separation.
-
-# Arguments
-- `solenoid::Coil`: The solenoid.
-- `separation::Float64`: The separation between the solenoids in meters.
-
-# Returns
-- `::Superposition`: A superposition representing the Helmholtz coil.
-"""
-function Helmholtz(solenoid::Coil, separation)
-    coils = Vector{Coil}(undef, 2)
-
-    coils[1] = AxialOffset(solenoid, +separation / 2)
-    coils[2] = AxialOffset(solenoid, -separation / 2)
-
-    return Superposition(coils)
-end
-
-"""
-    AntiHelmholtz(solenoid::Coil, separation)
-
-Creates a superposition representing an anti-Helmholtz coil with a given solenoid and separation.
-
-# Arguments
-- `solenoid::Coil`: The solenoid.
-- `separation::Float64`: The separation between the solenoids in meters.
-
-# Returns
-- `::Superposition`: A superposition representing the anti-Helmholtz coil.
-"""
-function AntiHelmholtz(solenoid::Coil, separation)
-    coils = Vector{Coil}(undef, 2)
-
-    coils[1] = AxialOffset(solenoid, +separation / 2)
-    coils[2] = ReverseCAxialOffset(solenoid, -separation / 2)
-
-    return Superposition(coils)
 end
