@@ -26,40 +26,40 @@ using Revise, Unitful, Coils, Plots, PlutoUI
 
 # ╔═╡ 1c31570d-12a1-4e6e-bc94-0a27f87bd54a
 md"""
-# Pancake coil
+# Solenoid coil
 
-The present notebook visualizes the magnetic flux density created by a pancake coil.
+The present notebook visualizes the magnetic flux density created by a solenoid coil.
 """
 
 # ╔═╡ a721bc22-5a61-4696-900a-3140b226211a
 md"Current: $(@bind current_A NumberField(1:100, default=100)) A"
 
 # ╔═╡ 41f28788-2e4f-4d42-8ca4-2cd29ad0b88f
-md"Inner radius: $(@bind inner_radius_mm NumberField(1:100, default=10)) mm"
+md"Radius: $(@bind radius_mm NumberField(1:100, default=4)) mm"
 
 # ╔═╡ d454927c-6efc-48d4-85b2-b0669ab879f1
-md"Outer radius: $(@bind outer_radius_mm NumberField(1:100, default=12)) mm"
+md"Length: $(@bind length_mm NumberField(1:100, default=10)) mm"
 
 # ╔═╡ e8183ea2-e78b-47e7-b55e-973584a53f0f
-md"Number of turns: $(@bind turns_int NumberField(1:10, default=6))"
+md"Number of turns: $(@bind turns_int NumberField(1:10, default=24))"
 
 # ╔═╡ e69c1cf6-c28c-4a49-800b-436dfeb76b89
 begin
 	current = current_A * 1u"A"
-	inner_radius = inner_radius_mm * 1u"mm"
-	outer_radius = outer_radius_mm * 1u"mm"
+	radius = radius_mm * 1u"mm"
+	length = length_mm * 1u"mm"
 
 	turns = UInt8(turns_int)
 end;
 
 # ╔═╡ 763f9094-8983-4096-b68d-5a6e4a191459
-coil = Pancake(current, inner_radius, outer_radius, turns)
+coil = Solenoid(current, radius, length, turns)
 
 # ╔═╡ c3ab7f86-bf3b-4a35-b236-764ee8fba05b
-ρ = LinRange(0.0u"mm", 1.2outer_radius, 100);
+ρ = LinRange(0.0u"mm", 1.2radius, 100);
 
 # ╔═╡ 06ae6131-f183-4594-85ac-ecc8663b8b7d
-z = LinRange(-8u"mm", 8u"mm", 100);
+z = LinRange(-1.2length, 1.2length, 100);
 
 # ╔═╡ 628c0e45-c0f9-40ab-bf20-39ee56003865
 let

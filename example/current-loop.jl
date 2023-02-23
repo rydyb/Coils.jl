@@ -95,7 +95,7 @@ end;
 current_loop = CurrentLoop(current, radius)
 
 # ╔═╡ 4d1a0f75-f9cc-4396-b5cc-1bb410eb5e4a
-ρ = LinRange(0.5radius, 1.5radius, 100);
+ρ = LinRange(0u"mm", 1.5radius, 100);
 
 # ╔═╡ 2cccb15a-9e56-401a-8d12-f1afe986186a
 z = LinRange(-0.6radius, 0.6radius, 100);
@@ -136,7 +136,7 @@ end
 let
 	B = [mfd(current_loop, ρi, zi) for zi in z, ρi in ρ]
 
-	p1 = heatmap(ρ, z, map(B -> uconvert.(u"Gauss", B[1]), B),
+	p1 = heatmap(ρ, z, map(B -> B[1], B),
     	c=:viridis,
     	transpose=1,
     	title="Radial component",
@@ -144,7 +144,7 @@ let
     	ylabel="Axial coordinate z",
   	)
 
-	p2 = heatmap(ρ, z, map(B -> uconvert.(u"Gauss", B[2]), B),
+	p2 = heatmap(ρ, z, map(B -> B[2], B),
     	c=:viridis,
     	title="Axial component",
     	xlabel="Radial coordinate ρ",
@@ -169,5 +169,5 @@ end
 # ╟─2a8d3d22-0bb1-4362-a1b6-6d92340a89c5
 # ╠═4d1a0f75-f9cc-4396-b5cc-1bb410eb5e4a
 # ╠═2cccb15a-9e56-401a-8d12-f1afe986186a
-# ╟─387259d6-a752-4a4d-8f19-ac7a97c6961e
-# ╠═deab93a7-340c-404e-8a13-1d18e571104a
+# ╠═387259d6-a752-4a4d-8f19-ac7a97c6961e
+# ╟─deab93a7-340c-404e-8a13-1d18e571104a

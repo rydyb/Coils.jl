@@ -64,10 +64,10 @@ end;
 coil = Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
 
 # ╔═╡ c3ab7f86-bf3b-4a35-b236-764ee8fba05b
-ρ = LinRange(0.0u"mm", 1.5inner_radius, 100);
+ρ = LinRange(0u"mm", 1.2outer_radius, 100);
 
 # ╔═╡ 06ae6131-f183-4594-85ac-ecc8663b8b7d
-z = LinRange(-0.6coil.length, 0.6coil.length, 100)
+z = LinRange(-1.2length, 1.2length, 100);
 
 # ╔═╡ 628c0e45-c0f9-40ab-bf20-39ee56003865
 let
@@ -76,16 +76,16 @@ let
     	markers=[:circle :hex],
     	labels=["Bρ" "Bz"],
     	title="Axial ρ=0",
-    	xlabel="Axial coordinate z (m)",
-    	ylabel="Magnetic flux density B (G)",
+    	xlabel="Axial coordinate z",
+    	ylabel="Magnetic flux density B",
   	)
   	p2 = plot(ρ, reduce(vcat, mfd.(Ref(coil), ρ, 0u"m")),
 	    seriestype=:scatter,
     	markers=[:circle :hex],
     	labels=["Bρ" "Bz"],
     	title="Radial z=0",
-	    xlabel="Radial coordinate ρ (m)",
-    	ylabel="Magnetic flux density B (G)",
+	    xlabel="Radial coordinate ρ",
+    	ylabel="Magnetic flux density B",
   	)
 
 	ρz = reduce(vcat, wires(coil))
@@ -102,16 +102,16 @@ let
 	p1 = heatmap(ρ, z, map(B -> B[1], B),
     	c=:viridis,
     	transpose=1,
-    	title="Radial component (G)",
-    	xlabel="Radial coordinate ρ (m)",
-    	ylabel="Axial coordinate z (m)",
+    	title="Radial component",
+    	xlabel="Radial coordinate ρ",
+    	ylabel="Axial coordinate z",
   	)	
 
   	p2 = heatmap(ρ, z, map(B -> B[2], B),
 	    c=:viridis,
-	    title="Axial component (G)",
-	    xlabel="Radial coordinate ρ (m)",
-	    ylabel="Axial coordinate z (m)",
+	    title="Axial component",
+	    xlabel="Radial coordinate ρ",
+	    ylabel="Axial coordinate z",
   	)
 
   	ρz = reduce(vcat, wires(coil))
@@ -135,5 +135,5 @@ end
 # ╠═763f9094-8983-4096-b68d-5a6e4a191459
 # ╠═c3ab7f86-bf3b-4a35-b236-764ee8fba05b
 # ╠═06ae6131-f183-4594-85ac-ecc8663b8b7d
-# ╠═628c0e45-c0f9-40ab-bf20-39ee56003865
+# ╟─628c0e45-c0f9-40ab-bf20-39ee56003865
 # ╟─6ab67973-2e3a-4a45-93cf-c027d55ffccc
