@@ -18,7 +18,7 @@ struct RectangularHollowCore{T1<:Unitful.Length,T2<:Unitful.Length} <: Wire
     height::T1
     core_diameter::T1
     total_length::T2
-    material::Material
+    material <: Material
 end
 
 function hollow_area(w::RectangularHollowCore)
