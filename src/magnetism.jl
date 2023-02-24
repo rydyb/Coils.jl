@@ -1,7 +1,7 @@
 using Elliptic
 using PhysicalConstants.CODATA2018: μ_0
 
-export Coil, CurrentLoop, Pancake, Solenoid, Helical, Helmholtz, AntiHelmholtz
+export Coil, CurrentLoop, Pancake, Solenoid, Helical, Helmholtz, AntiHelmholtz, Superposition
 export mfd, mfd_z
 
 """

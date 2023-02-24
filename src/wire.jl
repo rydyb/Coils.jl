@@ -13,12 +13,12 @@ end
 
 const Copper = Material("Copper", 1.72e-8u"Ω*m")
 
-struct RectangularHollowCore{T1<:Unitful.Length,T2<:Unitful.Length} <: Wire
+struct RectangularHollowCore{T1<:Unitful.Length,T2<:Unitful.Length,T3} <: Wire
     width::T1
     height::T1
     core_diameter::T1
     total_length::T2
-    material <: Material
+    material::Material{T3}
 end
 
 function hollow_area(w::RectangularHollowCore)
