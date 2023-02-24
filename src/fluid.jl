@@ -1,12 +1,15 @@
 export Fluid, Channel
 export heat_transfer, pressure_drop_tube, pressure_drop_coil
 
+@derived_dimension SpecificHeatCapacity dimension(u"J/(kg*K)")
+@derived_dimension ThermalConductivity dimension(u"W/(m*K)")
+
 struct Fluid{
     T1<:Unitful.Density,
     T2<:Unitful.Velocity,
     T3<:Unitful.DynamicViscosity,
-    T4<:Unitful.HeatCapacity,
-    T5<:Unitful.ThermalConductivity,
+    T4<:SpecificHeatCapacity,
+    T5<:ThermalConductivity,
     T6<:Unitful.Temperature,
 }
     density::T1
@@ -80,7 +83,7 @@ function nusselt_number_turbulent(f::Fluid, c::Channel)
 end
 
 # VDI Heat Atlas, p. 696
-function nusselt_number(f::Flow, c::Channel)
+function nusselt_number(f::Fluid, c::Channel)
     γ = criticality(f, c)
 
     Nu_laminar = nusselt_number_laminar(f, c)

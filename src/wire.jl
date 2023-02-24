@@ -42,7 +42,7 @@ function total_resistance(w::RectangularHollowCore)
     return ρ * A / L
 end
 
-function heat_emission(w::RectangularHollowCore, current::Unitful.ElectricCurrent)
+function heat_emission(w::RectangularHollowCore, current::Unitful.Current)
     R = total_resistance(w)
     I = current
 
