@@ -1,15 +1,20 @@
+export Fluid, Channel
+export heat_transfer, pressure_drop_tube, pressure_drop_coil
+
 struct Fluid{
     T1<:Unitful.Density,
     T2<:Unitful.Velocity,
     T3<:Unitful.DynamicViscosity,
     T4<:Unitful.HeatCapacity,
     T5<:Unitful.ThermalConductivity,
+    T6<:Unitful.Temperature,
 }
     density::T1
     velocity::T2
     viscosity::T3
     heat_capacity::T4
     thermal_conductivity::T5
+    temperature::T6
 end
 
 struct Channel{T<:Unitful.Length}
@@ -82,6 +87,14 @@ function nusselt_number(f::Flow, c::Channel)
     Nu_turbulent = nusselt_number_turbulent(f, c)
 
     return (1 - γ) * Nu_laminar(f) + γ * Nu_turbulent(f)
+end
+
+function heat_transfer(f::Fluid, c::Channel)
+    k = f.thermal_conductivity
+    D = c.hydraulic_diameter
+    Nu = nusselt_number(f, c)
+
+    return Nu * (k / D)
 end
 
 # VDI Heat Atlas, p. 1057
