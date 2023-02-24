@@ -54,6 +54,7 @@ end
 
 mfd(c::Helical, ρ, z) = mfd(Superposition(c), ρ, z)
 mfd(c::Helmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
+mfd(c::AntiHelmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
 
 # https://de.wikipedia.org/wiki/Leiterschleife
 function mfd_z(c::CurrentLoop, z)

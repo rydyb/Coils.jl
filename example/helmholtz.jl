@@ -67,7 +67,10 @@ begin
 end;
 
 # ╔═╡ f2d60367-d4f9-480c-ac5c-75c3ff0eb74a
-coil = Helmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns, separation)
+helmholtz = Helmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns, separation)
+
+# ╔═╡ b9ade901-a1b6-4905-9c97-ea9e66ae611d
+helmholtz_ideal = Helmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
 
 # ╔═╡ 94981d0a-26a8-410e-9aec-06f773fc41a3
 z = LinRange(-1.2separation, 1.2separation, 100);
@@ -77,7 +80,7 @@ z = LinRange(-1.2separation, 1.2separation, 100);
 
 # ╔═╡ 94ab23e3-b77d-434f-9f6d-22c13e9dfc06
 let
-	B = [mfd(coil, ρi, zi) for zi in z, ρi in ρ]
+	B = [mfd(helmholtz, ρi, zi) for zi in z, ρi in ρ]
 
 	p1 = heatmap(ρ, z, map(B -> uconvert.(u"Gauss", B[1]), B),
 		c=:viridis,
@@ -95,7 +98,7 @@ let
 		ylabel="Axial coordinate z",
 	)
 
-	ρz = reduce(vcat, wires(coil))
+	ρz = reduce(vcat, wires(helmholtz))
 	scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 	scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 	
@@ -104,20 +107,18 @@ end
 
 # ╔═╡ 9968823b-4397-4379-a174-66e53b279ff1
 let
-	h = Helmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
-
-	B = reduce(vcat, mfd.(Ref(coil), 0u"mm", z))
-
-	plot(z, [B reduce(vcat, mfd.(Ref(h), 0u"mm", z))],
+	scatter(z, reduce(vcat, mfd.(Ref(helmholtz), 0u"mm", z)),
     	seriestype=:scatter,
     	markers=[:circle :hex],
-    	labels=["Bρ" "Bz" "Bρ (Helmholtz separation)" "Bz (Helmholtz separation)"],
+    	labels=["Bρ" "Bz"],
     	title="Axial ρ=0",
     	xlabel="Axial coordinate z",
     	ylabel="Magnetic flux density B",
+		legend=:bottom,
   	)
+	scatter!(z, reduce(vcat, mfd.(Ref(helmholtz_ideal), 0u"mm", z)), labels=["Bρ (Helmholtz separation)" "Bz (Helmholtz separation)"])
 
-	hline!(z, [mfd_z(coil, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
+	hline!(z, [mfd_z(helmholtz, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
 end
 
 # ╔═╡ e46d04f9-aa32-40fd-88d4-55d1fcf3c8d2
@@ -132,6 +133,41 @@ $$B^z(0,0)=
 wherein $N$ is the number of total turns and $R_\text{eff}$ is the effective radius.
 """
 
+# ╔═╡ 4addeaee-d686-4dfb-85d5-e473ae826fb1
+md"""
+# Anti-Helmholtz
+"""
+
+# ╔═╡ f719c7bc-52f8-4bd0-95f7-73311ad2e78d
+md"Separation: $(@bind anti_separation_mm NumberField(1:40, default=20)) mm"
+
+# ╔═╡ 185657cf-bf8f-4eb9-a5fd-7f2300af5b68
+begin
+	anti_separation = anti_separation_mm * 1u"mm"
+end;
+
+# ╔═╡ 34683b0d-3816-4876-82c5-9296f64c36dc
+antihelmholtz = AntiHelmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns, anti_separation)
+
+# ╔═╡ 3b222515-c2e5-4df3-8aa4-d6ee6e1d59d5
+antihelmholtz_ideal = AntiHelmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
+
+# ╔═╡ 0cb240cc-0d01-4d9c-bb6c-229f0ebbd28e
+let
+	scatter(z, reduce(vcat, mfd.(Ref(antihelmholtz), 0u"mm", z)),
+    	seriestype=:scatter,
+    	markers=[:circle :hex],
+    	labels=["Bρ" "Bz"],
+    	title="Axial ρ=0",
+    	xlabel="Axial coordinate z",
+    	ylabel="Magnetic flux density B",
+		legend=:bottom,
+  	)
+	scatter!(z, reduce(vcat, mfd.(Ref(antihelmholtz_ideal), 0u"mm", z)), labels=["Bρ (Helmholtz separation)" "Bz (Helmholtz separation)"])
+
+	hline!(z, [mfd_z(helmholtz, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
+end
+
 # ╔═╡ Cell order:
 # ╠═ae9a85d0-b0f2-11ed-161e-f355a5ee436b
 # ╠═d5e4c4f6-7b9f-483b-b517-45ecfa59930c
@@ -144,9 +180,16 @@ wherein $N$ is the number of total turns and $R_\text{eff}$ is the effective rad
 # ╟─a4b8fc31-c021-4acd-8857-8e30095f359b
 # ╟─42e2bc75-4aa5-4a70-b792-133c673cbe2a
 # ╟─0b4c5b72-8172-44c7-bd62-9c8dab2e31b1
-# ╠═f2d60367-d4f9-480c-ac5c-75c3ff0eb74a
+# ╟─f2d60367-d4f9-480c-ac5c-75c3ff0eb74a
+# ╟─b9ade901-a1b6-4905-9c97-ea9e66ae611d
 # ╠═94981d0a-26a8-410e-9aec-06f773fc41a3
 # ╠═debd08c3-e572-4722-8af9-49a2d6da161d
 # ╟─94ab23e3-b77d-434f-9f6d-22c13e9dfc06
 # ╟─9968823b-4397-4379-a174-66e53b279ff1
 # ╟─e46d04f9-aa32-40fd-88d4-55d1fcf3c8d2
+# ╟─4addeaee-d686-4dfb-85d5-e473ae826fb1
+# ╟─f719c7bc-52f8-4bd0-95f7-73311ad2e78d
+# ╟─185657cf-bf8f-4eb9-a5fd-7f2300af5b68
+# ╠═34683b0d-3816-4876-82c5-9296f64c36dc
+# ╠═3b222515-c2e5-4df3-8aa4-d6ee6e1d59d5
+# ╟─0cb240cc-0d01-4d9c-bb6c-229f0ebbd28e

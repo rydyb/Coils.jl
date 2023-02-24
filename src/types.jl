@@ -115,6 +115,60 @@ Helmholtz(
     (outer_radius + inner_radius) / 2,
 )
 
+struct AntiHelmholtz{
+    T1<:Unitful.Current,
+    T2<:Unitful.Length,
+    T3<:Unitful.Length,
+    T4<:Unitful.Length,
+    T5<:Unsigned,
+    T6<:Unsigned,
+    T7<:Unitful.Length,
+} <: Coil
+    top_current::T1
+    bottom_current::T1
+    inner_radius::T2
+    outer_radius::T3
+    length::T4
+    axial_turns::T5
+    radial_turns::T6
+    separation::T7
+end
+
+AntiHelmholtz(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    length::Unitful.Length,
+    axial_turns::Unsigned,
+    radial_turns::Unsigned,
+    separation::Unitful.Length,
+) = AntiHelmholtz(
+    current,
+    -current,
+    inner_radius,
+    outer_radius,
+    length,
+    axial_turns,
+    radial_turns,
+    separation,
+)
+
+AntiHelmholtz(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    length::Unitful.Length,
+    axial_turns::Unsigned,
+    radial_turns::Unsigned,
+) = AntiHelmholtz(
+    current,
+    inner_radius,
+    outer_radius,
+    length,
+    axial_turns,
+    radial_turns,
+    √3(outer_radius + inner_radius) / 2,
+)
 
 """
     Virtual
@@ -176,6 +230,32 @@ struct Superposition{T<:Coil} <: Virtual
         )
         bottom_coil = Helical(
             c.current,
+            c.inner_radius,
+            c.outer_radius,
+            c.length,
+            c.axial_turns,
+            c.radial_turns,
+            -c.separation / 2,
+        )
+
+        top_loops = Superposition(top_coil).coils
+        bottom_loops = Superposition(bottom_coil).coils
+
+        return new{CurrentLoop}(vcat(top_loops, bottom_loops))
+    end
+
+    function Superposition(c::AntiHelmholtz)
+        top_coil = Helical(
+            c.top_current,
+            c.inner_radius,
+            c.outer_radius,
+            c.length,
+            c.axial_turns,
+            c.radial_turns,
+            c.separation / 2,
+        )
+        bottom_coil = Helical(
+            c.bottom_current,
             c.inner_radius,
             c.outer_radius,
             c.length,
