@@ -2,13 +2,12 @@ module Coils
 
 using Unitful
 
-export Coil, CurrentLoop, AxialOffset, ReverseCurrent, Superposition
-export Solenoid, Helmholtz, AntiHelmholtz
+export Coil, CurrentLoop, Pancake, Solenoid, Helical, Helmholtz, AntiHelmholtz
 export mfd, mfd_z
 export wires
 
-include("types.jl")
-include("wires.jl")
-include("mfd.jl")
+include("wire.jl")
+include("magnetism.jl")
+include("fluid.jl")
 
 end # module Coils
