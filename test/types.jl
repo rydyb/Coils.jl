@@ -20,7 +20,14 @@
 
     @testset "Superposition" begin
         @test Superposition(Helical(1u"A", 10u"mm", 10u"mm", 0u"mm", UInt8(1), UInt8(1))) ==
-              Superposition([CurrentLoop(1u"A", 10u"mm", 0.0u"m")])
+              Superposition([CurrentLoop(1u"A", 10.0u"mm")])
+        @test Superposition(Helical(1u"A", 10u"mm", 10u"mm", 2u"mm", UInt8(2), UInt8(1))) ==
+              Superposition([
+            CurrentLoop(1u"A", 10.0u"mm", -0.001u"m"),
+            CurrentLoop(1u"A", 10.0u"mm", 0.001u"m"),
+        ])
+        @test Superposition(Helical(1u"A", 10u"mm", 12u"mm", 0u"mm", UInt8(1), UInt8(2))) ==
+              Superposition([CurrentLoop(1u"A", 10.0u"mm"), CurrentLoop(1u"A", 12.0u"mm")])
     end
 
 end

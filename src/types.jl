@@ -128,3 +128,5 @@ struct Superposition{T<:Coil} <: Virtual
         return new{CurrentLoop}(coils)
     end
 end
+
+Base.:(==)(x::Superposition, y::Superposition) = x.coils == y.coils
