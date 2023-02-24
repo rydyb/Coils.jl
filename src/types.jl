@@ -26,21 +26,21 @@ CurrentLoop(current::Unitful.Current, radius::Unitful.Length) = CurrentLoop(curr
 A helical coil with a given current, inner radius, outer radius, height, number of axial turns, number of radial turns, and height centered at the origin.
 """
 struct Helical{
-    C<:Unitful.Current,
-    IR<:Unitful.Length,
-    OR<:Unitful.Length,
-    L<:Unitful.Length,
-    AT<:Unsigned,
-    RT<:Unsigned,
-    H<:Unitful.Length,
+    T1<:Unitful.Current,
+    T2<:Unitful.Length,
+    T3<:Unitful.Length,
+    T4<:Unitful.Length,
+    T5<:Unsigned,
+    T6<:Unsigned,
+    T7<:Unitful.Length,
 } <: Coil
-    current::C
-    inner_radius::IR
-    outer_radius::OR
-    length::L
-    axial_turns::AT
-    radial_turns::RT
-    height::H
+    current::T1
+    inner_radius::T2
+    outer_radius::T3
+    length::T4
+    axial_turns::T5
+    radial_turns::T6
+    height::T7
 end
 
 Helical(
@@ -79,6 +79,42 @@ Solenoid(
     length::Unitful.Length,
     turns::Unsigned,
 ) = Helical(current, radius, radius, length, turns, UInt8(1))
+
+struct Helmholtz{
+    T1<:Unitful.Current,
+    T2<:Unitful.Length,
+    T3<:Unitful.Length,
+    T4<:Unitful.Length,
+    T5<:Unsigned,
+    T6<:Unsigned,
+    T7<:Unitful.Length,
+} <: Coil
+    current::T1
+    inner_radius::T2
+    outer_radius::T3
+    length::T4
+    axial_turns::T5
+    radial_turns::T6
+    separation::T7
+end
+
+Helmholtz(
+    current::Unitful.Current,
+    inner_radius::Unitful.Length,
+    outer_radius::Unitful.Length,
+    length::Unitful.Length,
+    axial_turns::Unsigned,
+    radial_turns::Unsigned,
+) = Helmholtz(
+    current,
+    inner_radius,
+    outer_radius,
+    length,
+    axial_turns,
+    radial_turns,
+    (outer_radius + inner_radius) / 2,
+)
+
 
 """
     Virtual
@@ -126,6 +162,32 @@ struct Superposition{T<:Coil} <: Virtual
         end
 
         return new{CurrentLoop}(coils)
+    end
+
+    function Superposition(c::Helmholtz)
+        top_coil = Helical(
+            c.current,
+            c.inner_radius,
+            c.outer_radius,
+            c.length,
+            c.axial_turns,
+            c.radial_turns,
+            c.separation / 2,
+        )
+        bottom_coil = Helical(
+            c.current,
+            c.inner_radius,
+            c.outer_radius,
+            c.length,
+            c.axial_turns,
+            c.radial_turns,
+            -c.separation / 2,
+        )
+
+        top_loops = Superposition(top_coil).coils
+        bottom_loops = Superposition(bottom_coil).coils
+
+        return new{CurrentLoop}(vcat(top_loops, bottom_loops))
     end
 end
 

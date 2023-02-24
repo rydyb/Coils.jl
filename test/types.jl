@@ -18,6 +18,11 @@
               Helical(1u"A", 10u"mm", 10u"mm", 6u"mm", UInt8(6), UInt8(1), 20u"mm")
     end
 
+    @testset "Helmholtz" begin
+        @test Helmholtz(1u"A", 10u"mm", 14u"mm", 0u"mm", UInt8(1), UInt8(2)) ==
+              Helmholtz(1u"A", 10u"mm", 14u"mm", 0u"mm", UInt8(1), UInt8(2), 12.0u"mm")
+    end
+
     @testset "Superposition" begin
         @test Superposition(Helical(1u"A", 10u"mm", 10u"mm", 0u"mm", UInt8(1), UInt8(1))) ==
               Superposition([CurrentLoop(1u"A", 10.0u"mm")])
@@ -28,6 +33,11 @@
         ])
         @test Superposition(Helical(1u"A", 10u"mm", 12u"mm", 0u"mm", UInt8(1), UInt8(2))) ==
               Superposition([CurrentLoop(1u"A", 10.0u"mm"), CurrentLoop(1u"A", 12.0u"mm")])
+        @test Superposition(Helmholtz(1u"A", 10u"mm", 10u"mm", 0u"mm", UInt8(1), UInt8(1))) ==
+              Superposition([
+            CurrentLoop(1u"A", 10.0u"mm", 5.0u"mm"),
+            CurrentLoop(1u"A", 10.0u"mm", -5.0u"mm"),
+        ])
     end
 
 end

@@ -25,6 +25,11 @@ function mfd(current_loop::CurrentLoop, ρ, z)
 
     z = z + current_loop.height
 
+    # α becomes zero for z -> 0 when ρ -> R
+    if iszero(z) && R ≈ ρ
+        return [0u"T" 0u"T"]
+    end
+
     α² = R^2 + ρ^2 + z^2 - 2R * ρ
     β = √(R^2 + ρ^2 + z^2 + 2R * ρ)
 
@@ -35,24 +40,20 @@ function mfd(current_loop::CurrentLoop, ρ, z)
 
     C = μ_0 * I / 2π
 
-    Bρ = (C / (α² * β)) * ((R^2 + ρ^2 + z^2) * E - α² * K) * (z / ρ)
-    Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
-
     # Bρ diverges for ρ -> 0
     if iszero(ρ)
         Bρ = 0u"T"
+    else
+        Bρ = (C / (α² * β)) * ((R^2 + ρ^2 + z^2) * E - α² * K) * (z / ρ)
     end
 
-    # α becomes zero for z -> 0 when ρ -> R
-    if iszero(z) && R ≈ ρ
-        Bρ = 0u"T"
-        Bz = 0u"T"
-    end
+    Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
-    return [Bρ Bz]
+    return upreferred.([Bρ Bz])
 end
 
 mfd(c::Helical, ρ, z) = mfd(Superposition(c), ρ, z)
+mfd(c::Helmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
 
 # https://de.wikipedia.org/wiki/Leiterschleife
 function mfd_z(c::CurrentLoop, z)
@@ -61,7 +62,7 @@ function mfd_z(c::CurrentLoop, z)
 
     Bz = (μ_0 * I / 2) * R^2 / (R^2 + z^2)^(3 / 2)
 
-    return [0u"T" Bz]
+    return upreferred.([0u"T" Bz])
 end
 
 # https://en.wikipedia.org/wiki/Solenoid
@@ -79,5 +80,19 @@ function mfd_z(c::Helical, z)
 
     Bz = μ_0 * I * N / L
 
-    return [0u"T" Bz]
+    return upreferred.([0u"T" Bz])
+end
+
+# https://en.wikipedia.org/wiki/Helmholtz_coil
+function mfd_z(c::Helmholtz, z)
+    if (!isapprox(z, 0u"m"))
+        throw(ArgumentError("Can only give the magnetic flux density at the origin"))
+    end
+
+    total_turns = c.axial_turns * c.radial_turns
+    effective_radius = (c.inner_radius + c.outer_radius) / 2
+
+    Bz = (4 / 5)^(3 / 2) * μ_0 * total_turns * c.current / effective_radius
+
+    return upreferred.([0u"T" Bz])
 end

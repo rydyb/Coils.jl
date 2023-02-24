@@ -107,8 +107,8 @@ let
 		markers=[:circle :hex],
 		labels=["Bρ" "Bz"],
 		title="Axial ρ=0",
-		xlabel="Axial coordinate z (m)",
-		ylabel="Magnetic flux density B (G)",
+		xlabel="Axial coordinate z",
+		ylabel="Magnetic flux density B",
   	)
 	plot!(z, map(B -> B[2], mfd_z.(Ref(current_loop), z)),
 		label="",
@@ -121,8 +121,8 @@ let
     	markers=[:circle :hex],
     	labels=["Bρ" "Bz"],
     	title="Radial z=0",
-    	xlabel="Radial coordinate ρ (m)",
-    	ylabel="Magnetic flux density B (G)",
+    	xlabel="Radial coordinate ρ",
+    	ylabel="Magnetic flux density B",
   	)
 
 	ρz = reduce(vcat, wires(current_loop))
@@ -169,5 +169,5 @@ end
 # ╟─2a8d3d22-0bb1-4362-a1b6-6d92340a89c5
 # ╠═4d1a0f75-f9cc-4396-b5cc-1bb410eb5e4a
 # ╠═2cccb15a-9e56-401a-8d12-f1afe986186a
-# ╠═387259d6-a752-4a4d-8f19-ac7a97c6961e
+# ╟─387259d6-a752-4a4d-8f19-ac7a97c6961e
 # ╟─deab93a7-340c-404e-8a13-1d18e571104a
