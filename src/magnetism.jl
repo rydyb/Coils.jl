@@ -235,6 +235,10 @@ function mfd_z(c::CoilPair, z)
     return upreferred.([0u"T" Bz])
 end
 
+conductor_coordinates(c::CoilPair) =
+    cat(conductor_coordinates(c.top), conductor_coordinates(c.bottom), dims = 1)
+conductor_length(c::CoilPair) = conductor_length(c.top) + conductor_length(c.bottom)
+
 abstract type Virtual end
 
 struct Superposition{T<:CurrentLoop} <: Virtual

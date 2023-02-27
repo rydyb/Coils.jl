@@ -201,4 +201,17 @@ end
         ),
     )
 
+    @testset "conductor_coordinates" begin
+        cp = Helmholtz(
+            coil = Pancake(
+                current = 1u"A",
+                inner_radius = 10u"mm",
+                outer_radius = 10u"mm",
+                turns = UInt8(1),
+            ),
+            separation = 100u"mm",
+        )
+
+        @test conductor_coordinates(cp) == [[10.0u"mm" 0.05u"m"], [10.0u"mm" -0.05u"m"]]
+    end
 end
