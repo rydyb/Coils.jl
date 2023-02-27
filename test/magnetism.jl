@@ -130,31 +130,6 @@ end
     end
 end
 
-@testset "Helmholtz" begin
-    @test Helmholtz(
-        current = 1u"A",
-        inner_radius = 10u"mm",
-        outer_radius = 14u"mm",
-        length = 12u"mm",
-        radial_turns = UInt8(2),
-        axial_turns = UInt8(3),
-        separation = 100u"mm",
-    ) == Helmholtz(1u"A", 10u"mm", 14u"mm", 12u"mm", 100u"mm", (UInt8(2), UInt8(3)))
-    @test Helmholtz(current = 1u"A", inner_radius = 10u"mm") == Helmholtz(
-        current = 1u"A",
-        inner_radius = 10u"mm",
-        outer_radius = 10u"mm",
-        length = 0u"m",
-        radial_turns = UInt8(1),
-        axial_turns = UInt8(1),
-        separation = 10.0u"mm",
-    )
-end
-
-@testset "AntiHelmholtz" begin
-
-end
-
 @testset "Superposition" begin
     @test Superposition(
         Helical(current = 1u"A", inner_radius = 10u"mm", outer_radius = 10u"mm", length = 0u"m"),
@@ -171,22 +146,59 @@ end
         CurrentLoop(current = 1u"A", radius = 10.0u"mm"),
         CurrentLoop(current = 1u"A", radius = 12.0u"mm"),
     ])
-    @test Superposition(
-        Helmholtz(current = 1u"A", inner_radius = 10u"mm", outer_radius = 10u"mm", length = 0u"mm"),
-    ) == Superposition([
-        CurrentLoop(current = 1u"A", radius = 10.0u"mm", height = 5.0u"mm"),
-        CurrentLoop(current = 1u"A", radius = 10.0u"mm", height = -5.0u"mm"),
-    ])
-    @test Superposition(
-        AntiHelmholtz(
+end
+
+@testset "Pair" begin
+
+    coil = Helical(
+        current = 1u"A",
+        inner_radius = 10u"mm",
+        outer_radius = 12u"mm",
+        length = 20u"mm",
+        axial_turns = UInt8(2),
+        radial_turns = UInt8(3),
+    )
+
+    @test Helmholtz(coil = coil, separation = 100u"mm") == CoilPair(
+        Helical(
             current = 1u"A",
             inner_radius = 10u"mm",
-            outer_radius = 10u"mm",
-            length = 0u"mm",
-            separation = 10u"mm",
+            outer_radius = 12u"mm",
+            length = 20u"mm",
+            axial_turns = UInt8(2),
+            radial_turns = UInt8(3),
+            height = 0.05u"m",
         ),
-    ) == Superposition([
-        CurrentLoop(current = 1u"A", radius = 10.0u"mm", height = 5.0u"mm"),
-        CurrentLoop(current = -1u"A", radius = 10.0u"mm", height = -5.0u"mm"),
-    ])
+        Helical(
+            current = 1u"A",
+            inner_radius = 10u"mm",
+            outer_radius = 12u"mm",
+            length = 20u"mm",
+            axial_turns = UInt8(2),
+            radial_turns = UInt8(3),
+            height = -0.05u"m",
+        ),
+    )
+
+    @test AntiHelmholtz(coil = coil, separation = 100u"mm") == CoilPair(
+        Helical(
+            current = 1u"A",
+            inner_radius = 10u"mm",
+            outer_radius = 12u"mm",
+            length = 20u"mm",
+            axial_turns = UInt8(2),
+            radial_turns = UInt8(3),
+            height = 0.05u"m",
+        ),
+        Helical(
+            current = -1u"A",
+            inner_radius = 10u"mm",
+            outer_radius = 12u"mm",
+            length = 20u"mm",
+            axial_turns = UInt8(2),
+            radial_turns = UInt8(3),
+            height = -0.05u"m",
+        ),
+    )
+
 end
