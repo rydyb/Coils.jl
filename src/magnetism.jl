@@ -220,12 +220,20 @@ function AntiHelmholtz(;
 end
 
 # https://en.wikipedia.org/wiki/Helmholtz_coil
-function mfd_z(c::CoilPair, z)
+function mfd_z(cp::CoilPair, z)
     if (!isapprox(z, 0u"m"))
         throw(ArgumentError("Can only give the magnetic flux density at the origin"))
     end
     # TODO: throw error if the coils are not the same
+    if cp.top.current != cp.bottom.current ||
+       cp.top.turns != cp.bottom.turns ||
+       cp.top.length != cp.bottom.length ||
+       cp.top.inner_radius != cp.bottom.inner_radius ||
+       cp.top.outer_radius != cp.bottom.outer_radius
+        throw(ArgumentError("Can only give the magnetic flux density for equal coils"))
+    end
 
+    c = cp.top
     I = c.current
     N = c.turns[1] * c.turns[2]
     R = (c.inner_radius + c.outer_radius) / 2

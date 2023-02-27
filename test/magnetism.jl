@@ -201,17 +201,21 @@ end
         ),
     )
 
-    @testset "conductor_coordinates" begin
-        cp = Helmholtz(
-            coil = Pancake(
-                current = 1u"A",
-                inner_radius = 10u"mm",
-                outer_radius = 10u"mm",
-                turns = UInt8(1),
-            ),
-            separation = 100u"mm",
-        )
+    cp = Helmholtz(
+        coil = Pancake(
+            current = 100u"A",
+            inner_radius = 10u"mm",
+            outer_radius = 10u"mm",
+            turns = UInt8(1),
+        ),
+    )
 
-        @test conductor_coordinates(cp) == [[10.0u"mm" 0.05u"m"], [10.0u"mm" -0.05u"m"]]
+    @testset "mfd" begin
+        @test mfd(cp, 0u"m", 0u"m") ≈ [0u"T" 0u"T"] atol = 0.1u"T"
+        @test mfd(cp, 1u"μm", 0u"m") ≈ mfd_z(cp, 0u"m") atol = 0.1u"T"
+    end
+
+    @testset "conductor_coordinates" begin
+        @test conductor_coordinates(cp) == [[10.0u"mm" 0.005u"m"], [10.0u"mm" -0.005u"m"]]
     end
 end

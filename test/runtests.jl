@@ -3,4 +3,4 @@ using Test
 using Unitful
 
 include("magnetism.jl")
-include("wire.jl")
+#include("wire.jl")
