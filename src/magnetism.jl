@@ -3,7 +3,7 @@ using PhysicalConstants.CODATA2018: μ_0
 
 export Coil, CurrentLoop, Pancake, Solenoid, Helical, Helmholtz, AntiHelmholtz, Superposition
 export mfd, mfd_z
-export conductor
+export conductor_coordinates, conductor_length
 
 """
     Coil
@@ -356,8 +356,12 @@ mfd(c::Helical, ρ, z) = mfd(Superposition(c), ρ, z)
 mfd(c::Helmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
 mfd(c::AntiHelmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
 
-conductor(c::CurrentLoop) = [[c.radius c.height]]
-conductor(sp::Superposition) = [ρz for c in sp.coils for ρz in conductor(c)]
-conductor(c::Helical) = conductor(Superposition(c))
-conductor(c::Helmholtz) = conductor(Superposition(c))
-conductor(c::AntiHelmholtz) = conductor(Superposition(c))
+conductor_coordinates(c::CurrentLoop) = [[c.radius c.height]]
+conductor_coordinates(sp::Superposition) = [ρz for c in sp.coils for ρz in conductor_coordinates(c)]
+conductor_coordinates(c::Helical) = conductor_coordinates(Superposition(c))
+conductor_coordinates(c::Helmholtz) = conductor_coordinates(Superposition(c))
+conductor_coordinates(c::AntiHelmholtz) = conductor_coordinates(Superposition(c))
+
+conductor_length(c::CurrentLoop) = 2π * c.radius
+conductor_length(sp::Superposition) = sum(conductor_length(c) for c in sp.coils)
+conductor_length(c::Helical) = conductor_length(Superposition(c))

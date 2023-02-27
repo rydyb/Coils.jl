@@ -10,10 +10,16 @@
         @test mfd(current_loop, 0u"m", 0u"m") ≈ mfd_z(current_loop, 0u"m")
     end
 
-    @testset "conductor" begin
-        @test conductor(CurrentLoop(current = 1u"A", radius = 10u"mm")) == [[10u"mm" 0u"mm"]]
-        @test conductor(CurrentLoop(current = 1u"A", radius = 10u"mm", height = -5u"mm")) ==
-              [[10u"mm" -5u"mm"]]
+    @testset "conductor_coordinates" begin
+        @test conductor_coordinates(CurrentLoop(current = 1u"A", radius = 10u"mm")) ==
+              [[10u"mm" 0u"mm"]]
+        @test conductor_coordinates(
+            CurrentLoop(current = 1u"A", radius = 10u"mm", height = -5u"mm"),
+        ) == [[10u"mm" -5u"mm"]]
+    end
+
+    @testset "conductor_length" begin
+        @test conductor_length(CurrentLoop(current = 1u"A", radius = 10u"mm")) == 2π * 10u"mm"
     end
 
 end
@@ -83,11 +89,11 @@ end
         @test mfd(solenoid, 0u"m", 0u"m") ≈ mfd_z(solenoid, 0u"m") atol = 0.1u"T"
     end
 
-    @testset "conductor" begin
-        @test conductor(
+    @testset "conductor_coordinates" begin
+        @test conductor_coordinates(
             Solenoid(current = 1u"A", radius = 10u"mm", length = 2u"mm", turns = UInt8(2)),
         ) == [[10.0u"mm" -1.0u"mm"], [10.0u"mm" 1.0u"mm"]]
-        @test conductor(
+        @test conductor_coordinates(
             Pancake(
                 current = 1u"A",
                 inner_radius = 10u"mm",
@@ -95,7 +101,7 @@ end
                 turns = UInt8(2),
             ),
         ) == [[10.0u"mm" 0.0u"mm"], [20.0u"mm" 0.0u"mm"]]
-        @test conductor(
+        @test conductor_coordinates(
             Helical(
                 current = 1u"A",
                 inner_radius = 10u"mm",
@@ -110,6 +116,17 @@ end
             [20.0u"mm" -1.0u"mm"],
             [20.0u"mm" 1.0u"mm"],
         ]
+    end
+
+    @testset "conductor_length" begin
+        @test conductor_length(
+            Pancake(
+                current = 1u"A",
+                inner_radius = 10u"mm",
+                outer_radius = 20u"mm",
+                turns = UInt8(2),
+            ),
+        ) == 2π * 30u"mm"
     end
 end
 

@@ -1,48 +1,49 @@
-export RectangularHollowCore
+export RectangularSectionWithHole
 export Copper
-export hollow_area, total_resistance, dissipated_heat
-
-abstract type Wire end
+export hollow_area, conductive_area
+export specific_resistance
 
 struct Material{T1<:Unitful.ElectricalResistivity}
     name::String
     resistivity::T1
 end
 
-const Copper = Material("Copper", 1.72e-8u"Ω*m")
+# https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity#Resistivity_and_conductivity_of_various_materials
+const Copper = Material("Copper", 1.68e-8u"Ω*m")
 
-struct RectangularHollowCore{T1<:Unitful.Length,T2<:Unitful.Length,T3} <: Wire
+abstract type Section end
+
+struct RectangularSectionWithHole{T1<:Unitful.Length,T2<:Unitful.Length,T3<:Unitful.Length,TM} <:
+       Section
+    height::T2
     width::T1
-    height::T1
-    core_diameter::T1
-    total_length::T2
-    material::Material{T3}
+    diameter::T3
+    material::Material{TM}
 end
 
-function hollow_area(w::RectangularHollowCore)
-    d = w.core_diameter
+RectangularSectionWithHole(;
+    width::Unitful.Length,
+    height::Unitful.Length,
+    diameter::Unitful.Length,
+    material::Material = Copper,
+) = RectangularSectionWithHole(height, width, diameter, material)
+
+function hollow_area(w::RectangularSectionWithHole)
+    d = w.diameter
 
     return π * (d / 2)^2
 end
 
-function conductive_area(wire::RectangularHollowCore)
+function conductive_area(wire::RectangularSectionWithHole)
     w = wire.width
     h = wire.height
 
     return w * h - hollow_area(wire)
 end
 
-function total_resistance(w::RectangularHollowCore)
+function specific_resistance(w::RectangularSectionWithHole)
     A = conductive_area(w)
     ρ = w.material.resistivity
-    L = w.total_length
 
-    return ρ * A / L
-end
-
-function heat_emission(w::RectangularHollowCore, current::Unitful.Current)
-    R = total_resistance(w)
-    I = current
-
-    return R * I^2
+    return uconvert(u"Ω/m", ρ / A)
 end
