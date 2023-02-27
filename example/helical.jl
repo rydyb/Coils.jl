@@ -61,7 +61,7 @@ begin
 end;
 
 # ╔═╡ 763f9094-8983-4096-b68d-5a6e4a191459
-coil = Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
+coil = Helical(current=current, inner_radius=inner_radius, outer_radius=outer_radius, length=length, axial_turns=axial_turns, radial_turns=radial_turns)
 
 # ╔═╡ c3ab7f86-bf3b-4a35-b236-764ee8fba05b
 ρ = LinRange(0u"mm", 1.2outer_radius, 100);
@@ -88,7 +88,7 @@ let
     	ylabel="Magnetic flux density B",
   	)
 
-	ρz = reduce(vcat, wires(coil))
+	ρz = reduce(vcat, conductor_coordinates(coil))
   	vline!(p2, ρz[:, 1], label="")
   	vline!(p1, ρz[:, 2], label="")
 
@@ -114,7 +114,7 @@ let
 	    ylabel="Axial coordinate z",
   	)
 
-  	ρz = reduce(vcat, wires(coil))
+  	ρz = reduce(vcat, conductor_coordinates(coil))
   	scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
   	scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 

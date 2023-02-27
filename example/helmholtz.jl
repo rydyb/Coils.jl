@@ -67,10 +67,20 @@ begin
 end;
 
 # ╔═╡ f2d60367-d4f9-480c-ac5c-75c3ff0eb74a
-helmholtz = Helmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns, separation)
+coil = Helical(
+	current=current,
+	inner_radius=inner_radius,
+	outer_radius=outer_radius,
+	length=length,
+	axial_turns=axial_turns,
+	radial_turns=radial_turns,
+)
+
+# ╔═╡ ff1eace0-8a39-43a0-b9d6-b401752de505
+hpair = Helmholtz(coil=coil, separation=separation)
 
 # ╔═╡ b9ade901-a1b6-4905-9c97-ea9e66ae611d
-helmholtz_ideal = Helmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
+hpair_ideal = Helmholtz(coil=coil)
 
 # ╔═╡ 94981d0a-26a8-410e-9aec-06f773fc41a3
 z = LinRange(-1.2separation, 1.2separation, 100);
@@ -80,7 +90,7 @@ z = LinRange(-1.2separation, 1.2separation, 100);
 
 # ╔═╡ 94ab23e3-b77d-434f-9f6d-22c13e9dfc06
 let
-	B = [mfd(helmholtz, ρi, zi) for zi in z, ρi in ρ]
+	B = [mfd(hpair, ρi, zi) for zi in z, ρi in ρ]
 
 	p1 = heatmap(ρ, z, map(B -> uconvert.(u"Gauss", B[1]), B),
 		c=:viridis,
@@ -98,7 +108,7 @@ let
 		ylabel="Axial coordinate z",
 	)
 
-	ρz = reduce(vcat, wires(helmholtz))
+	ρz = reduce(vcat, conductor_coordinates(hpair))
 	scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 	scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 	
@@ -107,7 +117,7 @@ end
 
 # ╔═╡ 9968823b-4397-4379-a174-66e53b279ff1
 let
-	scatter(z, reduce(vcat, mfd.(Ref(helmholtz), 0u"mm", z)),
+	scatter(z, reduce(vcat, mfd.(Ref(hpair), 0u"mm", z)),
     	seriestype=:scatter,
     	markers=[:circle :hex],
     	labels=["Bρ" "Bz"],
@@ -116,9 +126,9 @@ let
     	ylabel="Magnetic flux density B",
 		legend=:bottom,
   	)
-	scatter!(z, reduce(vcat, mfd.(Ref(helmholtz_ideal), 0u"mm", z)), labels=["Bρ (Helmholtz separation)" "Bz (Helmholtz separation)"])
+	scatter!(z, reduce(vcat, mfd.(Ref(hpair_ideal), 0u"mm", z)), labels=["Bρ (Helmholtz separation)" "Bz (Helmholtz separation)"])
 
-	hline!(z, [mfd_z(helmholtz, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
+	hline!(z, [mfd_z(hpair, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
 end
 
 # ╔═╡ e46d04f9-aa32-40fd-88d4-55d1fcf3c8d2
@@ -147,14 +157,14 @@ begin
 end;
 
 # ╔═╡ 34683b0d-3816-4876-82c5-9296f64c36dc
-antihelmholtz = AntiHelmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns, anti_separation)
+ahpair = AntiHelmholtz(coil=coil, separation=anti_separation)
 
 # ╔═╡ 3b222515-c2e5-4df3-8aa4-d6ee6e1d59d5
-antihelmholtz_ideal = AntiHelmholtz(current, inner_radius, outer_radius, length, axial_turns, radial_turns)
+ahpair_ideal = AntiHelmholtz(coil=coil)
 
 # ╔═╡ 0cb240cc-0d01-4d9c-bb6c-229f0ebbd28e
 let
-	scatter(z, reduce(vcat, mfd.(Ref(antihelmholtz), 0u"mm", z)),
+	scatter(z, reduce(vcat, mfd.(Ref(ahpair), 0u"mm", z)),
     	seriestype=:scatter,
     	markers=[:circle :hex],
     	labels=["Bρ" "Bz"],
@@ -163,9 +173,7 @@ let
     	ylabel="Magnetic flux density B",
 		legend=:bottom,
   	)
-	scatter!(z, reduce(vcat, mfd.(Ref(antihelmholtz_ideal), 0u"mm", z)), labels=["Bρ (Helmholtz separation)" "Bz (Helmholtz separation)"])
-
-	hline!(z, [mfd_z(helmholtz, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
+	scatter!(z, reduce(vcat, mfd.(Ref(ahpair_ideal), 0u"mm", z)), labels=["Bρ (ideael separation)" "Bz (ideal separation)"])
 end
 
 # ╔═╡ Cell order:
@@ -181,6 +189,7 @@ end
 # ╟─42e2bc75-4aa5-4a70-b792-133c673cbe2a
 # ╟─0b4c5b72-8172-44c7-bd62-9c8dab2e31b1
 # ╟─f2d60367-d4f9-480c-ac5c-75c3ff0eb74a
+# ╟─ff1eace0-8a39-43a0-b9d6-b401752de505
 # ╟─b9ade901-a1b6-4905-9c97-ea9e66ae611d
 # ╠═94981d0a-26a8-410e-9aec-06f773fc41a3
 # ╠═debd08c3-e572-4722-8af9-49a2d6da161d
@@ -192,4 +201,4 @@ end
 # ╟─185657cf-bf8f-4eb9-a5fd-7f2300af5b68
 # ╠═34683b0d-3816-4876-82c5-9296f64c36dc
 # ╠═3b222515-c2e5-4df3-8aa4-d6ee6e1d59d5
-# ╟─0cb240cc-0d01-4d9c-bb6c-229f0ebbd28e
+# ╠═0cb240cc-0d01-4d9c-bb6c-229f0ebbd28e
