@@ -3,6 +3,7 @@ using PhysicalConstants.CODATA2018: μ_0
 
 export Coil, CurrentLoop, Pancake, Solenoid, Helical, Helmholtz, AntiHelmholtz, Superposition
 export mfd, mfd_z
+export conductor
 
 """
     Coil
@@ -22,7 +23,8 @@ struct CurrentLoop{C<:Unitful.Current,R<:Unitful.Length,H<:Unitful.Length} <: Co
     height::H
 end
 
-CurrentLoop(current::Unitful.Current, radius::Unitful.Length) = CurrentLoop(current, radius, 0u"m")
+CurrentLoop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length = 0u"m") =
+    CurrentLoop(current, radius, height)
 
 """
     mfd(current_loop::CurrentLoop, ρ, z)
@@ -85,60 +87,61 @@ struct Helical{
     T2<:Unitful.Length,
     T3<:Unitful.Length,
     T4<:Unitful.Length,
-    T5<:Unsigned,
-    T6<:Unsigned,
-    T7<:Unitful.Length,
+    T5<:Unitful.Length,
+    T6<:Tuple{Unsigned,Unsigned},
 } <: Coil
     current::T1
     inner_radius::T2
     outer_radius::T3
     length::T4
-    axial_turns::T5
-    radial_turns::T6
-    height::T7
+    height::T5
+    turns::T6
 end
 
-Helical(
+Helical(;
     current::Unitful.Current,
     inner_radius::Unitful.Length,
     outer_radius::Unitful.Length,
     length::Unitful.Length,
-    axial_turns::Unsigned,
-    radial_turns::Unsigned,
-) = Helical(current, inner_radius, outer_radius, length, axial_turns, radial_turns, 0u"m")
+    axial_turns::Unsigned = UInt8(1),
+    radial_turns::Unsigned = UInt8(1),
+    height::Unitful.Length = 0u"m",
+) = Helical(current, inner_radius, outer_radius, length, height, (radial_turns, axial_turns))
 
-Pancake(
+Pancake(;
     current::Unitful.Current,
     inner_radius::Unitful.Length,
     outer_radius::Unitful.Length,
     turns::Unsigned,
-) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns)
-Pancake(
-    current::Unitful.Current,
-    inner_radius::Unitful.Length,
-    outer_radius::Unitful.Length,
-    turns::Unsigned,
-    height::Unitful.Length,
-) = Helical(current, inner_radius, outer_radius, 0u"m", UInt8(1), turns, height)
+    height::Unitful.Length = 0u"m",
+) = Helical(
+    current = current,
+    inner_radius = inner_radius,
+    outer_radius = outer_radius,
+    length = 0u"m",
+    height = height,
+    radial_turns = turns,
+)
 
-Solenoid(
+Solenoid(;
     current::Unitful.Current,
     radius::Unitful.Length,
     length::Unitful.Length,
+    height::Unitful.Length = 0u"m",
     turns::Unsigned,
-    height::Unitful.Length,
-) = Helical(current, radius, radius, length, turns, UInt8(1), height)
-Solenoid(
-    current::Unitful.Current,
-    radius::Unitful.Length,
-    length::Unitful.Length,
-    turns::Unsigned,
-) = Helical(current, radius, radius, length, turns, UInt8(1))
+) = Helical(
+    current = current,
+    inner_radius = radius,
+    outer_radius = radius,
+    length = length,
+    height = height,
+    axial_turns = turns,
+)
 
 
 # https://en.wikipedia.org/wiki/Solenoid
 function mfd_z(c::Helical, z)
-    if (c.radial_turns > 1)
+    if (c.turns[1] > 1)
         throw(ArgumentError("Only solenoids are supported"))
     end
     if (!isapprox(z, c.height))
@@ -146,7 +149,7 @@ function mfd_z(c::Helical, z)
     end
 
     I = c.current
-    N = c.axial_turns
+    N = c.turns[2]
     L = c.length
 
     Bz = μ_0 * I * N / L
@@ -159,35 +162,26 @@ struct Helmholtz{
     T2<:Unitful.Length,
     T3<:Unitful.Length,
     T4<:Unitful.Length,
-    T5<:Unsigned,
-    T6<:Unsigned,
-    T7<:Unitful.Length,
+    T5<:Unitful.Length,
+    T6<:Tuple{Unsigned,Unsigned},
 } <: Coil
     current::T1
     inner_radius::T2
     outer_radius::T3
     length::T4
-    axial_turns::T5
-    radial_turns::T6
-    separation::T7
+    separation::T5
+    turns::T6
 end
 
-Helmholtz(
+Helmholtz(;
     current::Unitful.Current,
-    inner_radius::Unitful.Length,
-    outer_radius::Unitful.Length,
-    length::Unitful.Length,
-    axial_turns::Unsigned,
-    radial_turns::Unsigned,
-) = Helmholtz(
-    current,
-    inner_radius,
-    outer_radius,
-    length,
-    axial_turns,
-    radial_turns,
-    (outer_radius + inner_radius) / 2,
-)
+    inner_radius::Unitful.Length = outer_radius,
+    outer_radius::Unitful.Length = inner_radius,
+    length::Unitful.Length = 0u"m",
+    axial_turns::Unsigned = UInt8(1),
+    radial_turns::Unsigned = UInt8(1),
+    separation::Unitful.Length = (outer_radius + inner_radius) / 2,
+) = Helmholtz(current, inner_radius, outer_radius, length, separation, (radial_turns, axial_turns))
 
 # https://en.wikipedia.org/wiki/Helmholtz_coil
 function mfd_z(c::Helmholtz, z)
@@ -195,10 +189,11 @@ function mfd_z(c::Helmholtz, z)
         throw(ArgumentError("Can only give the magnetic flux density at the origin"))
     end
 
-    total_turns = c.axial_turns * c.radial_turns
-    effective_radius = (c.inner_radius + c.outer_radius) / 2
+    I = c.current
+    N = c.turns[1] * c.turns[2]
+    R = (c.inner_radius + c.outer_radius) / 2
 
-    Bz = (4 / 5)^(3 / 2) * μ_0 * total_turns * c.current / effective_radius
+    Bz = (4 / 5)^(3 / 2) * μ_0 * I * N / R
 
     return upreferred.([0u"T" Bz])
 end
@@ -208,55 +203,36 @@ struct AntiHelmholtz{
     T2<:Unitful.Length,
     T3<:Unitful.Length,
     T4<:Unitful.Length,
-    T5<:Unsigned,
-    T6<:Unsigned,
-    T7<:Unitful.Length,
+    T5<:Unitful.Length,
+    T6<:Tuple{Unsigned,Unsigned},
 } <: Coil
     top_current::T1
     bottom_current::T1
     inner_radius::T2
     outer_radius::T3
     length::T4
-    axial_turns::T5
-    radial_turns::T6
-    separation::T7
+    separation::T5
+    turns::T6
 end
 
-AntiHelmholtz(
+AntiHelmholtz(;
     current::Unitful.Current,
     inner_radius::Unitful.Length,
     outer_radius::Unitful.Length,
     length::Unitful.Length,
-    axial_turns::Unsigned,
-    radial_turns::Unsigned,
-    separation::Unitful.Length,
+    axial_turns::Unsigned = UInt8(1),
+    radial_turns::Unsigned = UInt8(1),
+    separation::Unitful.Length = √3(outer_radius + inner_radius) / 2,
 ) = AntiHelmholtz(
     current,
     -current,
     inner_radius,
     outer_radius,
     length,
-    axial_turns,
-    radial_turns,
     separation,
+    (radial_turns, axial_turns),
 )
 
-AntiHelmholtz(
-    current::Unitful.Current,
-    inner_radius::Unitful.Length,
-    outer_radius::Unitful.Length,
-    length::Unitful.Length,
-    axial_turns::Unsigned,
-    radial_turns::Unsigned,
-) = AntiHelmholtz(
-    current,
-    inner_radius,
-    outer_radius,
-    length,
-    axial_turns,
-    radial_turns,
-    √3(outer_radius + inner_radius) / 2,
-)
 
 """
     Virtual
@@ -281,25 +257,34 @@ struct Superposition{T<:Coil} <: Virtual
     Represents a helical coil as a superposition of current loops.
     """
     function Superposition(c::Helical)
-        coils = Vector{CurrentLoop}(undef, c.axial_turns * c.radial_turns)
+        Nρ = c.turns[1]
+        Nz = c.turns[2]
 
-        for i = 1:c.radial_turns
-            if c.radial_turns == 1
-                radius = (c.inner_radius + c.outer_radius) / 2
+        coils = Vector{CurrentLoop}(undef, Nρ * Nz)
+
+        I = c.current
+        H = c.height
+        L = c.length
+        W = c.outer_radius - c.inner_radius
+        Rin = c.inner_radius
+        Rout = c.outer_radius
+        Reff = (Rin + Rout) / 2
+
+        for i = 1:Nρ
+            if Nρ == 1
+                R = Reff
             else
-                radius =
-                    c.inner_radius +
-                    (c.outer_radius - c.inner_radius) * (i - 1) / (c.radial_turns - 1)
+                R = Rin + (W / 1) * (i - 1) / (Nρ - 1)
             end
 
-            for j = 1:c.axial_turns
-                if c.axial_turns == 1
-                    height = c.height
+            for j = 1:Nz
+                if Nz == 1
+                    h = H
                 else
-                    height = c.height - c.length / 2 + c.length * (j - 1) / (c.axial_turns - 1)
+                    h = H - L / 2 + L * (j - 1) / (Nz - 1)
                 end
 
-                coils[(i-1)*c.axial_turns+j] = CurrentLoop(c.current, radius, height)
+                coils[(i-1)*Nz+j] = CurrentLoop(current = I, radius = R, height = h)
             end
         end
 
@@ -308,22 +293,22 @@ struct Superposition{T<:Coil} <: Virtual
 
     function Superposition(c::Helmholtz)
         top_coil = Helical(
-            c.current,
-            c.inner_radius,
-            c.outer_radius,
-            c.length,
-            c.axial_turns,
-            c.radial_turns,
-            c.separation / 2,
+            current = c.current,
+            inner_radius = c.inner_radius,
+            outer_radius = c.outer_radius,
+            length = c.length,
+            radial_turns = c.turns[1],
+            axial_turns = c.turns[2],
+            height = c.separation / 2,
         )
         bottom_coil = Helical(
-            c.current,
-            c.inner_radius,
-            c.outer_radius,
-            c.length,
-            c.axial_turns,
-            c.radial_turns,
-            -c.separation / 2,
+            current = c.current,
+            inner_radius = c.inner_radius,
+            outer_radius = c.outer_radius,
+            length = c.length,
+            radial_turns = c.turns[1],
+            axial_turns = c.turns[2],
+            height = -c.separation / 2,
         )
 
         top_loops = Superposition(top_coil).coils
@@ -334,22 +319,22 @@ struct Superposition{T<:Coil} <: Virtual
 
     function Superposition(c::AntiHelmholtz)
         top_coil = Helical(
-            c.top_current,
-            c.inner_radius,
-            c.outer_radius,
-            c.length,
-            c.axial_turns,
-            c.radial_turns,
-            c.separation / 2,
+            current = c.top_current,
+            inner_radius = c.inner_radius,
+            outer_radius = c.outer_radius,
+            length = c.length,
+            radial_turns = c.turns[1],
+            axial_turns = c.turns[2],
+            height = c.separation / 2,
         )
         bottom_coil = Helical(
-            c.bottom_current,
-            c.inner_radius,
-            c.outer_radius,
-            c.length,
-            c.axial_turns,
-            c.radial_turns,
-            -c.separation / 2,
+            current = c.bottom_current,
+            inner_radius = c.inner_radius,
+            outer_radius = c.outer_radius,
+            length = c.length,
+            radial_turns = c.turns[1],
+            axial_turns = c.turns[2],
+            height = -c.separation / 2,
         )
 
         top_loops = Superposition(top_coil).coils
@@ -371,8 +356,8 @@ mfd(c::Helical, ρ, z) = mfd(Superposition(c), ρ, z)
 mfd(c::Helmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
 mfd(c::AntiHelmholtz, ρ, z) = mfd(Superposition(c), ρ, z)
 
-wires(c::CurrentLoop) = [[c.radius c.height]]
-wires(sp::Superposition) = [ρz for c in sp.coils for ρz in wires(c)]
-wires(c::Helical) = wires(Superposition(c))
-wires(c::Helmholtz) = wires(Superposition(c))
-wires(c::AntiHelmholtz) = wires(Superposition(c))
+conductor(c::CurrentLoop) = [[c.radius c.height]]
+conductor(sp::Superposition) = [ρz for c in sp.coils for ρz in conductor(c)]
+conductor(c::Helical) = conductor(Superposition(c))
+conductor(c::Helmholtz) = conductor(Superposition(c))
+conductor(c::AntiHelmholtz) = conductor(Superposition(c))

@@ -1,5 +1,3 @@
-export wires
-
 export RectangularHollowCore
 export Copper
 export hollow_area, total_resistance, dissipated_heat
