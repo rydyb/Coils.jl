@@ -2,6 +2,6 @@ using Coils
 using Test
 using Unitful
 
-include("types.jl")
-include("wires.jl")
-include("mfd.jl")
+include("magnetism.jl")
+include("wire.jl")
+include("fluid.jl")

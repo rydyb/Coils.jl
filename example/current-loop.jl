@@ -92,7 +92,7 @@ begin
 end;
 
 # ╔═╡ 2a8d3d22-0bb1-4362-a1b6-6d92340a89c5
-current_loop = CurrentLoop(current, radius)
+current_loop = CurrentLoop(current=current, radius=radius)
 
 # ╔═╡ 4d1a0f75-f9cc-4396-b5cc-1bb410eb5e4a
 ρ = LinRange(0u"mm", 1.5radius, 100);
@@ -125,7 +125,7 @@ let
     	ylabel="Magnetic flux density B",
   	)
 
-	ρz = reduce(vcat, wires(current_loop))
+	ρz = reduce(vcat, conductor_coordinates(current_loop))
   	vline!(p2, ρz[:, 1], label="")
   	vline!(p1, ρz[:, 2], label="")
 
@@ -151,7 +151,7 @@ let
     	ylabel="Axial coordinate z",
   	)
 
-  	ρz = reduce(vcat, wires(current_loop))
+  	ρz = reduce(vcat, conductor_coordinates(current_loop))
   	scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
   	scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
 
