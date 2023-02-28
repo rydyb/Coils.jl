@@ -131,6 +131,19 @@ let
 	hline!(z, [mfd_z(hpair, 0u"m")[2]], color="black", linewidth=2, label="Bz (eq. (1))")
 end
 
+# ╔═╡ ba6a56a1-981a-45bb-b95a-c595abde7619
+let
+	scatter(ρ, reduce(vcat, mfd.(Ref(hpair), ρ, 0u"mm")),
+    	seriestype=:scatter,
+    	markers=[:circle :hex],
+    	labels=["Bρ" "Bz"],
+    	title="Axial z=0",
+    	xlabel="Axial coordinate z",
+    	ylabel="Magnetic flux density B",
+		legend=:bottom,
+  	)
+end
+
 # ╔═╡ e46d04f9-aa32-40fd-88d4-55d1fcf3c8d2
 md"""
 where the black line denotes the approximation
@@ -194,7 +207,8 @@ end
 # ╠═94981d0a-26a8-410e-9aec-06f773fc41a3
 # ╠═debd08c3-e572-4722-8af9-49a2d6da161d
 # ╟─94ab23e3-b77d-434f-9f6d-22c13e9dfc06
-# ╟─9968823b-4397-4379-a174-66e53b279ff1
+# ╠═9968823b-4397-4379-a174-66e53b279ff1
+# ╠═ba6a56a1-981a-45bb-b95a-c595abde7619
 # ╟─e46d04f9-aa32-40fd-88d4-55d1fcf3c8d2
 # ╟─4addeaee-d686-4dfb-85d5-e473ae826fb1
 # ╟─f719c7bc-52f8-4bd0-95f7-73311ad2e78d

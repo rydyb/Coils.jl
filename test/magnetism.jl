@@ -213,7 +213,6 @@ end
     @testset "mfd" begin
         @test mfd(cp, 0u"m", 0u"m") ≈ [0u"T" 0u"T"] atol = 0.1u"T"
         @test mfd(cp, 1u"μm", 0u"m") ≈ mfd_z(cp, 0u"m") atol = 0.1u"T"
-        @test mfd(cp, [1u"μm" 21u"μm"], 0u"m")
     end
 
     @testset "conductor_coordinates" begin
