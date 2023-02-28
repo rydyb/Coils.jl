@@ -68,6 +68,11 @@ function mfd(current_loop::CurrentLoop, ρ, z)
     return upreferred.([Bρ Bz])
 end
 
+"""
+    mfd_z(current_loop::CurrentLoop, z)
+
+The vectorial magnetic flux density on the z-axis due to a current loop in cylindrical coordinates.
+"""
 # https://de.wikipedia.org/wiki/Leiterschleife
 function mfd_z(c::CurrentLoop, z)
     I = c.current
@@ -81,6 +86,11 @@ end
 conductor_coordinates(c::CurrentLoop) = [[c.radius c.height]]
 conductor_length(c::CurrentLoop) = 2π * c.radius
 
+"""
+    Helical
+
+A helical coil.
+"""
 struct Helical{
     T1<:Unitful.Current,
     T2<:Unitful.Length,
@@ -107,6 +117,11 @@ Helical(;
     height::Unitful.Length = 0u"m",
 ) = Helical(current, inner_radius, outer_radius, length, height, (radial_turns, axial_turns))
 
+"""
+    Pancake(current, inner_radius, outer_radius, turns, height)
+
+Returns a helical coil with a pancake shape.
+"""
 Pancake(;
     current::Unitful.Current,
     inner_radius::Unitful.Length,
@@ -122,6 +137,11 @@ Pancake(;
     radial_turns = turns,
 )
 
+"""
+    Solenoid(current, radius, length, turns, height)
+
+Returns a helical coil with a solenoid shape.
+"""
 Solenoid(;
     current::Unitful.Current,
     radius::Unitful.Length,
@@ -137,8 +157,18 @@ Solenoid(;
     axial_turns = turns,
 )
 
+"""
+    mfd(c::Helical, ρ, z)
+
+The vectorial magnetic flux density due to a helical coil in cylindrical coordinates approximated by superposition of current loops.
+"""
 mfd(c::Helical, ρ, z) = mfd(Superposition(c), ρ, z)
 
+"""
+    mfd_z(c::Helical, z)
+
+The vectorial magnetic flux density on the z-axis due to a solenoid coil in cylindrical coordinates.
+"""
 # https://en.wikipedia.org/wiki/Solenoid
 function mfd_z(c::Helical, z)
     if (c.turns[1] > 1)
@@ -160,13 +190,28 @@ end
 conductor_coordinates(c::Helical) = conductor_coordinates(Superposition(c))
 conductor_length(c::Helical) = conductor_length(Superposition(c))
 
+"""
+    CoilPair
+
+A pair of coils with the symmetry axis aligned.
+"""
 struct CoilPair{T<:Coil}
     top::T
     bottom::T
 end
 
-mfd(c::CoilPair, ρ, z) = mfd(Superposition(c.top), ρ, z) + mfd(Superposition(c.bottom), ρ, z)
+"""
+    mfd(c::CoilPair, ρ, z)
 
+The vectorial magnetic flux density due to a coil pair in cylindrical coordinates.
+"""
+mfd(c::CoilPair, ρ, z) = mfd(c.top, ρ, z) + mfd(c.bottom, ρ, z)
+
+"""
+    Helmholtz(coil, separation)
+
+Returns a pair of coils in Helmholtz-like configuration.
+"""
 function Helmholtz(;
     coil::Helical,
     separation::Unitful.Length = (coil.outer_radius + coil.inner_radius) / 2,
@@ -193,6 +238,11 @@ function Helmholtz(;
     return CoilPair(top, bottom)
 end
 
+"""
+    AntiHelmholtz(coil, separation)
+
+Returns a pair of coils in anti-Helmholtz-like configuration.
+"""
 function AntiHelmholtz(;
     coil::Helical,
     separation::Unitful.Length = √3 * (coil.outer_radius + coil.inner_radius) / 2,
@@ -219,6 +269,11 @@ function AntiHelmholtz(;
     return CoilPair(top, bottom)
 end
 
+"""
+    mfd_z(cp::CoilPair, z)
+
+The vectorial magnetic flux density on the z-axis due to a Helmholtz-like coil pair in cylindrical coordinates.
+"""
 # https://en.wikipedia.org/wiki/Helmholtz_coil
 function mfd_z(cp::CoilPair, z)
     if (!isapprox(z, 0u"m"))
@@ -247,9 +302,12 @@ conductor_coordinates(c::CoilPair) =
     cat(conductor_coordinates(c.top), conductor_coordinates(c.bottom), dims = 1)
 conductor_length(c::CoilPair) = conductor_length(c.top) + conductor_length(c.bottom)
 
-abstract type Virtual end
+"""
+    Superposition(coils)
 
-struct Superposition{T<:CurrentLoop} <: Virtual
+A superposition of current loops. Useful to approximate the magnetic flux densities of more complex coils.
+"""
+struct Superposition{T<:CurrentLoop}
     coils::Vector{T}
 
     Superposition(coils::Vector{T}) where {T<:Coil} = new{T}(coils)

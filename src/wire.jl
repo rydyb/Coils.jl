@@ -3,6 +3,11 @@ export Copper
 export hollow_area, conductive_area
 export specific_resistance
 
+"""
+    Material
+
+A wire material with a name and resistivity.
+"""
 struct Material{T1<:Unitful.ElectricalResistivity}
     name::String
     resistivity::T1
@@ -11,6 +16,11 @@ end
 # https://en.wikipedia.org/wiki/Electrical_resistivity_and_conductivity#Resistivity_and_conductivity_of_various_materials
 const Copper = Material("Copper", 1.68e-8u"Ω*m")
 
+"""
+    Section
+
+A wire cross-section.
+"""
 abstract type Section end
 
 struct RectangularSectionWithHole{T1<:Unitful.Length,T2<:Unitful.Length,T3<:Unitful.Length,TM} <:
