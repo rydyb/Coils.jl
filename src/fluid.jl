@@ -1,4 +1,4 @@
-export Fluid, Water, Tube
+export Fluid, Water, Tube, CoiledTube
 export reynolds_number,
     prandtl_number, nusselt_number, nusselt_number_laminar, nusselt_number_turbulent, criticality
 export heat_transfer, pressure_drop_tube, pressure_drop_coil
@@ -41,12 +41,20 @@ Water(; velocity::Unitful.Velocity, temperature::Unitful.Temperature) = Fluid(
 )
 
 struct Tube{T1<:Unitful.Length,T2<:Unitful.Length}
-    hydraulic_diameter::T1
-    total_length::T2
+    diameter::T1
+    length::T2
 end
 
-Tube(; hydraulic_diameter::Unitful.Length, total_length::Unitful.Length) =
-    Tube(hydraulic_diameter, total_length)
+Tube(; diameter::Unitful.Length, length::Unitful.Length) = Tube(diameter, length)
+
+struct CoiledTube{T<:Tube,T1<:Unitful.Length,T2<:Unitful.Length}
+    tube::T
+    diameter::T1
+    pitch::T2
+end
+
+CoiledTube(t::Tube; diameter::Unitful.Length, pitch::Unitful.Length) =
+    CoiledTube(t, diameter, pitch)
 
 """
     reynolds_number(f::Flow)
@@ -57,7 +65,7 @@ function reynolds_number(f::Fluid, t::Tube)
     ϱ = f.density
     v = f.velocity
     μ = f.viscosity
-    D = t.hydraulic_diameter
+    D = t.diameter
 
     return upreferred(ϱ * v * D / μ)
 end
@@ -85,7 +93,7 @@ end
 function nusselt_number_laminar(f::Fluid, t::Tube)
     Re = reynolds_number(f, t)
     Pr = prandtl_number(f)
-    λ = t.hydraulic_diameter / t.total_length
+    λ = t.diameter / t.length
 
     Nu₁ = 4.354
     Nu₂ = 1.953(Re * Pr * λ)^(1 / 3)
@@ -98,7 +106,7 @@ end
 function nusselt_number_turbulent(f::Fluid, t::Tube)
     Re = reynolds_number(f, t)
     Pr = prandtl_number(f)
-    λ = t.hydraulic_diameter / t.total_length
+    λ = t.diameter / t.length
     ξ = (1.8log10(Re) - 1.5)^(-2)
 
     return ((ξ / 8)Re * Pr) * (1 + λ^(2 / 3)) / (1 + 12.7(ξ / 8)^(1 / 2) * (Pr^(2 / 3) - 1))
@@ -116,7 +124,7 @@ end
 
 function heat_transfer(f::Fluid, t::Tube)
     k = f.thermal_conductivity
-    D = t.hydraulic_diameter
+    D = t.diameter
     Nu = nusselt_number(f, t)
 
     return Nu * (k / D)
@@ -125,8 +133,8 @@ end
 # VDI Heat Atlas, p. 1057
 function pressure_drop_tube(f::Fluid, t::Tube; friction = nothing)
     Re = reynolds_number(f, t)
-    L = t.total_length
-    d = t.hydraulic_diameter
+    L = t.length
+    d = t.diameter
     ρ = f.density
     u = f.velocity
 
@@ -140,17 +148,12 @@ function pressure_drop_tube(f::Fluid, t::Tube; friction = nothing)
 end
 
 # VDI Heat Atlas, p. 1062 to 1063
-function pressure_drop_coil(
-    f::Fluid,
-    t::Tube;
-    coil_diameter::Unitful.Length,
-    coil_pitch::Unitful.Length,
-)
-    Dw = coil_diameter
-    H = coil_pitch
+function pressure_drop_coil(f::Fluid, ct::CoiledTube;)
+    Dw = ct.diameter
+    H = ct.pitch
     D = Dw * (1 + (H / (π * Dw))^2)
-    d = t.hydraulic_diameter
-    Re = reynolds_number(f, t)
+    d = ct.tube.diameter
+    Re = reynolds_number(f, ct.tube)
 
     if (d / D)^(-2) < Re && Re < 2300
         ξ = (64 / Re) * (1 + 0.033(log10(Re * sqrt(d / D))))
@@ -158,5 +161,5 @@ function pressure_drop_coil(
         ξ = (0.3164 / Re^(1 / 4)) * (1 + 0.095sqrt(d / D) * Re^(1 / 4))
     end
 
-    return pressure_drop_tube(f, t, friction = ξ)
+    return pressure_drop_tube(f, ct.tube, friction = ξ)
 end

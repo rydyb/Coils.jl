@@ -10,7 +10,7 @@
     )
 
     fluid = Water(velocity = 0.58u"m/s", temperature = 20u"°C")
-    tube = Tube(hydraulic_diameter = 2.7u"mm", total_length = 9.5153u"m")
+    tube = Tube(diameter = 2.7u"mm", length = 9.5153u"m")
 
     @testset "reynolds_number" begin
         @test reynolds_number(fluid, tube) ≈ 1561 atol = 1
@@ -41,7 +41,7 @@
     end
 
     @testset "pressure_drop_coil" begin
-        @test pressure_drop_coil(fluid, tube, coil_diameter = 63.1u"mm", coil_pitch = 2.6u"mm") ≈
+        @test pressure_drop_coil(fluid, CoiledTube(tube, diameter = 63.1u"mm", pitch = 2.6u"mm")) ≈
               0.26u"bar" atol = 0.01u"bar"
     end
 
