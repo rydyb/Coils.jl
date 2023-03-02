@@ -5,6 +5,8 @@ export Coil, CurrentLoop, Pancake, Solenoid, Helical
 export Superposition, CoilPair, Helmholtz, AntiHelmholtz
 export mfd, mfd_z
 export conductor_coordinates, conductor_length
+export ishelmholtz, isantihelmholtz
+export inductance
 
 """
     Coil
@@ -280,11 +282,7 @@ function mfd_z(cp::CoilPair, z)
         throw(ArgumentError("Can only give the magnetic flux density at the origin"))
     end
     # TODO: throw error if the coils are not the same
-    if cp.top.current != cp.bottom.current ||
-       cp.top.turns != cp.bottom.turns ||
-       cp.top.length != cp.bottom.length ||
-       cp.top.inner_radius != cp.bottom.inner_radius ||
-       cp.top.outer_radius != cp.bottom.outer_radius
+    if ishelmholtz(cp)
         throw(ArgumentError("Can only give the magnetic flux density for equal coils"))
     end
 
@@ -296,6 +294,42 @@ function mfd_z(cp::CoilPair, z)
     Bz = (4 / 5)^(3 / 2) * μ_0 * I * N / R
 
     return upreferred.([0u"T" Bz])
+end
+
+function ishelmholtz(cp::CoilPair)
+    return cp.top.current != cp.bottom.current ||
+           cp.top.turns != cp.bottom.turns ||
+           cp.top.length != cp.bottom.length ||
+           cp.top.inner_radius != cp.bottom.inner_radius ||
+           cp.top.outer_radius != cp.bottom.outer_radius
+end
+
+function isantihelmholtz(cp::CoilPair)
+    return cp.top.current != -cp.bottom.current ||
+           cp.top.turns != cp.bottom.turns ||
+           cp.top.length != cp.bottom.length ||
+           cp.top.inner_radius != cp.bottom.inner_radius ||
+           cp.top.outer_radius != cp.bottom.outer_radius
+end
+
+function inductance(cp::CoilPair)
+    N = Int(cp.top.turns[1]) * Int(cp.top.turns[2])
+    R = (cp.top.inner_radius + cp.top.outer_radius) / 2
+    L = cp.top.length
+
+    C = 2μ_0 * R * N^2
+    L1 = π * R / (L + 2R / 2.2)
+    L2 = 4.941 / 4π
+
+    if ishelmholtz(cp)
+        return C * (L1 + L2)
+    end
+
+    if isantihelmholtz(cp)
+        return C * (L1 - L2)
+    end
+
+    throw(ArgumentError("Can only give the inductance for Helmholtz or anti-Helmholtz coils"))
 end
 
 conductor_coordinates(c::CoilPair) =
