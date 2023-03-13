@@ -3,9 +3,6 @@ export reynolds_number,
     prandtl_number, nusselt_number, nusselt_number_laminar, nusselt_number_turbulent, criticality
 export heat_transfer, pressure_drop_tube, pressure_drop_coil
 
-@derived_dimension SpecificHeatCapacity dimension(u"J/(kg*K)")
-@derived_dimension ThermalConductivity dimension(u"W/(m*K)")
-
 """
     Fluid
 

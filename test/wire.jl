@@ -12,8 +12,16 @@
         @test conductive_area(section) ≈ 19.27u"mm^2" atol = 1e-2u"mm^2"
     end
 
-    @testset "specific_resistance" begin
-        @test specific_resistance(section) ≈ 8.716e-4u"Ω/m" atol = 1e-6u"Ω/m"
+    @testset "resistance" begin
+        @test resistance(section) ≈ 8.716e-4u"Ω/m" atol = 1e-6u"Ω/m"
+    end
+
+    @testset "weight" begin
+        @test weight(section) ≈ 173u"g/m" atol = 1u"g/m"
+    end
+
+    @testset "heat_capacity" begin
+        @test heat_capacity(section) ≈ 66u"J/(K*m)" atol = 1u"J/(K*m)"
     end
 
 end
