@@ -1,7 +1,7 @@
 export Fluid, Water, Tube, CoiledTube
 export reynolds_number,
     prandtl_number, nusselt_number, nusselt_number_laminar, nusselt_number_turbulent, criticality
-export heat_transfer, pressure_drop_tube, pressure_drop_coil
+export heat_transfer, pressure_drop, pressure_drop_tube, pressure_drop_coil
 
 """
     Fluid
@@ -207,4 +207,16 @@ function pressure_drop_coil(f::Fluid, ct::CoiledTube;)
     end
 
     return pressure_drop_tube(f, ct.tube, friction = ξ)
+end
+
+# https://en.wikipedia.org/wiki/Flow_coefficient
+function pressure_drop(f::Fluid, flow_rate::VolumeFlow, flow_factor::VolumeFlow)
+    Q = uconvert(u"m^3/hr", flow_rate)
+    Kv = uconvert(u"m^3/hr", flow_factor)
+
+    ρ = f.density
+    ρ₀ = 1000u"kg/m^3"
+    p₀ = 1u"bar"
+
+    return p₀ * (Q / Kv)^2 * ρ / ρ₀
 end
