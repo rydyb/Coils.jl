@@ -41,7 +41,7 @@ function mfd(current_loop::CurrentLoop, ρ, z)
     I = current_loop.current
     R = current_loop.radius
 
-    z = z + current_loop.height
+    z = z - current_loop.height
 
     # α becomes zero for z -> 0 when ρ -> R
     if iszero(z) && R ≈ ρ
