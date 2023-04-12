@@ -3,6 +3,7 @@ using Test
 using Unitful
 using LinearAlgebra
 
-include("magnetism.jl")
-include("wire.jl")
-include("fluid.jl")
+include("loop.jl")
+include("helical.jl")
+include("pair.jl")
+include("loops.jl")

@@ -2,12 +2,16 @@ module Coils
 
 using Unitful
 
-@derived_dimension SpecificHeatCapacity dimension(u"J/(kg*K)")
-@derived_dimension ThermalConductivity dimension(u"W/(m*K)")
-@derived_dimension VolumeFlow dimension(u"m^3/s")
+"""
+    Coil
 
-include("wire.jl")
-include("magnetism.jl")
-include("fluid.jl")
+An abstract type for a magnetic coil.
+"""
+abstract type Coil end
+
+include("loop.jl")
+include("helical.jl")
+include("pair.jl")
+include("loops.jl")
 
 end # module Coils
