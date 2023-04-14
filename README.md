@@ -22,8 +22,8 @@ julia> Pluto.run()
 ```
 
 
-[CI-img]: https://github.com/ryd-yb/Coils.jl/actions/workflows/ci.yml/badge.svg
-[CI-url]: https://github.com/ryd-yb/Coils.jl/actions/workflows/ci.yml
+[CI-img]: https://github.com/rydyb/Coils.jl/actions/workflows/ci.yml/badge.svg
+[CI-url]: https://github.com/rydyb/Coils.jl/actions/workflows/ci.yml
 
-[codecov-img]:  https://codecov.io/gh/ryd-yb/Coils.jl/branch/main/graph/badge.svg?token=CNF55N4HDZ
-[codecov-url]: https://codecov.io/gh/ryd-yb/Coils.jl
+[codecov-img]:  https://codecov.io/gh/rydyb/Coils.jl/branch/main/graph/badge.svg?token=CNF55N4HDZ
+[codecov-url]: https://codecov.io/gh/rydyb/Coils.jl
