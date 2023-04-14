@@ -26,6 +26,23 @@ CurrentLoop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.
 conductor_coordinates(c::CurrentLoop) = [(c.radius, c.height)]
 conductor_length(c::CurrentLoop) = 2π * c.radius
 
+"""
+    mfd(c::CurrentLoop, ρ, z)
+
+Computes the radial and axial magnetic flux density according to analytical solution to the Biot-Savart law, see [1] and [2].
+
+- [1] Simpson, James C. et al. “Simple Analytic Expressions for the Magnetic Field of a Circular Current Loop.” (2001).
+- [2] Jang, Taehun, et al. "Off-axis magnetic fields of a circular loop and a solenoid for the electromagnetic induction of a magnetic pendulum."
+
+# Arguments
+- `c::CurrentLoop`: The CurrentLoop.
+- `ρ::Unitful.Length`: The radial coordinate.
+- `z::Unitful.Length`: The axial coordinate.
+
+# Returns
+- `Bρ::Unitful.MagneticFluxDensity`: The radial magnetic flux density.
+- `Bz::Unitful.MagneticFluxDensity`: The axial magnetic flux density.
+"""
 function mfd(c::CurrentLoop, ρ, z)
     I = c.current
     R = c.radius
@@ -58,6 +75,20 @@ function mfd(c::CurrentLoop, ρ, z)
     return upreferred(Bρ), upreferred(Bz)
 end
 
+"""
+    mfd_z(c::CurrentLoop, z)
+
+Computes the axial magnetic flux density along the z-axis according to [3].
+
+- [3] https://de.wikipedia.org/wiki/Leiterschleife
+
+# Arguments
+- `c::CurrentLoop`: The CurrentLoop.
+- `z::Unitful.Length`: The axial coordinate.
+
+# Returns
+- `Bz::Unitful.MagneticFluxDensity`: The axial magnetic flux density.
+"""
 function mfd_z(c::CurrentLoop, z)
     I = c.current
     R = c.radius
