@@ -51,13 +51,4 @@
         ),
     )
 
-    cp = Helmholtz(
-        coil = Pancake(
-            current = 100u"A",
-            inner_radius = 10u"mm",
-            outer_radius = 10u"mm",
-            turns = UInt8(1),
-        ),
-    )
-
 end

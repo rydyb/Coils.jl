@@ -1,3 +1,6 @@
+export Helmholtz, AntiHelmholtz
+export inductance
+
 function Helmholtz(;
     coil::Helical,
     separation::Unitful.Length = (coil.outer_radius + coil.inner_radius) / 2,
@@ -8,8 +11,8 @@ function Helmholtz(;
         outer_radius = coil.outer_radius,
         length = coil.length,
         height = coil.height + separation / 2,
-        radial_turns = coil.turns[1],
-        axial_turns = coil.turns[2],
+        radial_turns = coil.radial_turns,
+        axial_turns = coil.axial_turns,
     )
     bottom = Helical(
         current = coil.current,
@@ -17,8 +20,8 @@ function Helmholtz(;
         outer_radius = coil.outer_radius,
         length = coil.length,
         height = coil.height - separation / 2,
-        radial_turns = coil.turns[1],
-        axial_turns = coil.turns[2],
+        radial_turns = coil.radial_turns,
+        axial_turns = coil.axial_turns,
     )
 
     return (top, bottom)
@@ -34,8 +37,8 @@ function AntiHelmholtz(;
         outer_radius = coil.outer_radius,
         length = coil.length,
         height = coil.height + separation / 2,
-        radial_turns = coil.turns[1],
-        axial_turns = coil.turns[2],
+        radial_turns = coil.radial_turns,
+        axial_turns = coil.axial_turns,
     )
     bottom = Helical(
         current = -coil.current,
@@ -43,8 +46,8 @@ function AntiHelmholtz(;
         outer_radius = coil.outer_radius,
         length = coil.length,
         height = coil.height - separation / 2,
-        radial_turns = coil.turns[1],
-        axial_turns = coil.turns[2],
+        radial_turns = coil.radial_turns,
+        axial_turns = coil.axial_turns,
     )
 
     return (top, bottom)

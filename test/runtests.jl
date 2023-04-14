@@ -3,7 +3,7 @@ using Test
 using Unitful
 using LinearAlgebra
 
-include("loop.jl")
+include("current_loop.jl")
 include("helical.jl")
-#include("pair.jl")
-#include("loops.jl")
+include("helmholtz.jl")
+include("current_loop_array.jl")

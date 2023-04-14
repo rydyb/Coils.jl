@@ -1,3 +1,7 @@
+export Coil
+export mfd
+export conductor_coordinates, conductor_length
+
 """
     Coil
 
@@ -31,3 +35,18 @@ Returns the total length of the conductor.
 - `length::Unitful.Length`: The length of the conductor.
 """
 function conductor_length end
+
+"""
+    mfd(c::Coil, ρ, z)
+
+Returns the radial and axial magnetic flux density due to a coil.
+
+# Arguments
+- `c::Coil`: A specific coil.
+- `ρ::Unitful.Length`: The radial distance from the center of the coil.
+- `z::Unitful.Length`: The axial distance from the center of the coil.
+
+# Returns
+- `Bρ::Unitful.MagneticFluxDensity`: The radial magnetic flux density.
+"""
+function mfd end
