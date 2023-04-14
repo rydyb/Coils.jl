@@ -14,14 +14,14 @@
     end
 
     @testset "mfd" begin
-        current_loop = Loop(current = 300u"A", radius = 39.6u"mm", height = 26.5u"mm")
+        loop = Loop(current = 300u"A", radius = 39.6u"mm", height = 26.5u"mm")
 
         # should equal results from Comsol 5.5 simulation (wire diameter = 1.0 mm)
         comsol = [
             (0u"mm", -5u"mm", 22.81u"Gauss"),
             (0u"mm", -4u"mm", 23.67u"Gauss"),
             (0u"mm", -3u"mm", 24.54u"Gauss"),
-            (0u"mm", -2u"mm", 25.54u"Gauss"),
+            (0u"mm", -2u"mm", 25.45u"Gauss"),
             (0u"mm", -1u"mm", 26.37u"Gauss"),
             (0u"mm", 0u"mm", 27.31u"Gauss"),
             (0u"mm", 1u"mm", 28.28u"Gauss"),
@@ -42,12 +42,16 @@
             (10u"mm", 0u"mm", 27.23u"Gauss"),
         ]
         for (ρ, z, B) in comsol
-            @test round(u"Gauss", norm(mfd(current_loop, ρ, z)); sigdigits = 4) ≈ B atol =
-                0.1u"Gauss"
+            @test round(u"Gauss", norm(mfd(loop, ρ, z)); sigdigits = 4) ≈ B rtol = 1e-3
         end
+    end
 
-        # should reduce to simple analytical solution along the z-axis
-        @test mfd(current_loop, 0u"m", 0u"m") ≈ mfd_z(current_loop, 0u"m") atol = 0.01u"T"
+    @testset "mfd_z" begin
+        loop = Loop(current = 1u"A", radius = 10u"mm", height = 10u"mm")
+
+        for z in LinRange(-20u"mm", 20u"mm", 41)
+            @test mfd_z(loop, z) ≈ mfd(loop, 0u"m", z)[2] rtol = 1e-6
+        end
     end
 
 end

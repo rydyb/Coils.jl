@@ -21,7 +21,7 @@ struct Helical{
     T4<:Unitful.Length,
     T5<:Unitful.Length,
     T6<:Unsigned,
-} <: Coil
+}
     current::T1
     inner_radius::T2
     outer_radius::T3
@@ -39,7 +39,7 @@ Helical(;
     axial_turns::Unsigned = UInt8(1),
     radial_turns::Unsigned = UInt8(1),
     height::Unitful.Length = 0u"m",
-) = Helical(current, inner_radius, outer_radius, length, height, (radial_turns, axial_turns))
+) = Helical(current, inner_radius, outer_radius, length, height, radial_turns, axial_turns)
 
 """
     Pancake(; current, inner_radius, outer_radius, turns, height)
@@ -69,6 +69,7 @@ Pancake(;
     length = 0u"m",
     height = height,
     radial_turns = turns,
+    axial_turns = UInt8(1),
 )
 
 """
@@ -98,6 +99,7 @@ Solenoid(;
     outer_radius = radius,
     length = length,
     height = height,
+    radial_turns = UInt8(1),
     axial_turns = turns,
 )
 

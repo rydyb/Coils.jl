@@ -2,16 +2,10 @@ module Coils
 
 using Unitful
 
-"""
-    Coil
-
-An abstract type for a magnetic coil.
-"""
-abstract type Coil end
-
+include("coil.jl")
 include("loop.jl")
 include("helical.jl")
-include("pair.jl")
-include("loops.jl")
+include("helmholtz.jl")
+include("loop_array.jl")
 
 end # module Coils

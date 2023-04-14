@@ -1,7 +1,7 @@
 using Elliptic
 using PhysicalConstants.CODATA2018: μ_0
 
-export Loop, mfd, conductor_coordinates, conductor_length
+export Loop, mfd, mfd_z, conductor_coordinates, conductor_length
 
 """
     Loop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length = 0u"m")
@@ -22,30 +22,7 @@ end
 Loop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length = 0u"m") =
     Loop(current, radius, height)
 
-"""
-    conductor_coordinates(c::Loop)
-
-Returns the coordinates of the conductor in cylindrical coordinates.
-
-# Arguments
-- `c::Loop`: The current loop.
-
-# Returns
-- `coordinates::Vector{Vector{Unitful.Length}}`: The coordinates of the conductor.
-"""
 conductor_coordinates(c::Loop) = [[c.radius c.height]]
-
-"""
-    conductor_length(c::Loop)
-
-Returns the length of the conductor.
-
-# Arguments
-- `c::Loop`: The current loop.
-
-# Returns
-- `length::Unitful.Length`: The length of the conductor.
-"""
 conductor_length(c::Loop) = 2π * c.radius
 
 """
@@ -113,6 +90,7 @@ Computes the axial component of the magnetic flux density for a current loop alo
 function mfd_z(c::Loop, z)
     I = c.current
     R = c.radius
+    z = z - c.height
 
     Bz = (μ_0 * I / 2) * R^2 / (R^2 + z^2)^(3 / 2)
 

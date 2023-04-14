@@ -41,31 +41,8 @@ function LoopArray(c::Helical)
     return coils
 end
 
-"""
-    conductor_coordinates(c::Vector{Loop})
-
-Returns the coordinates of all the loops.
-
-# Arguments
-- `c::Vector{Loop}`: The loop vector to get the conductor coordinates of.
-
-# Return
-- `Vector{Tuple{Unitful.Length, Unitful.Length}}`: The coordinates of the conductor in the loop.
-"""
 conductor_coordinates(c::Vector{Loop}) = [ρz for loop in c for ρz in conductor_coordinates(loop)]
-
-"""
-    conductor_length(c::Vector{Loop})
-
-Returns the total length of all the loops.
-
-# Arguments
-- `c::Vector{Loop}`: The loop vector to get the conductor length of.
-
-# Return
-- `Unitful.Length`: The total length of the conductor in the loop.
-"""
-conductor_length(c::Vector{Loops}) = sum(conductor_length(loop) for loop in c)
+conductor_length(c::Vector{Loop}) = sum(conductor_length(loop) for loop in c)
 
 """
     mfd(c::Vector{Loop}, ρ, z)
@@ -73,11 +50,11 @@ conductor_length(c::Vector{Loops}) = sum(conductor_length(loop) for loop in c)
 Returns the magnetic flux density due to the loop at the given point.
 
 # Arguments
-- `c::Loop`: The loop to get the magnetic flux density of.
+- `c::Vector{Loop}`: The loop to get the magnetic flux density of.
 - `ρ::Unitful.Length`: The radial distance from the center of the loop.
 - `z::Unitful.Length`: The axial distance from the center of the loop.
 
 # Return
 - `Vector{Unitful.MagneticFluxDensity}`: The radial and axial components of the magnetic flux density.
 """
-mfd(c::Vector{Loops}, ρ, z) = sum(mfd(loop, ρ, z) for loop in c)
+mfd(c::Vector{Loop}, ρ, z) = sum(mfd(loop, ρ, z) for loop in c)

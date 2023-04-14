@@ -1,4 +1,4 @@
-@testset "Pair" begin
+@testset "Helmholtz" begin
 
     coil = Helical(
         current = 1u"A",
@@ -9,7 +9,7 @@
         radial_turns = UInt8(3),
     )
 
-    @test Helmholtz(coil = coil, separation = 100u"mm") == CoilPair(
+    @test Helmholtz(coil = coil, separation = 100u"mm") == (
         Helical(
             current = 1u"A",
             inner_radius = 10u"mm",
@@ -30,7 +30,7 @@
         ),
     )
 
-    @test AntiHelmholtz(coil = coil, separation = 100u"mm") == CoilPair(
+    @test AntiHelmholtz(coil = coil, separation = 100u"mm") == (
         Helical(
             current = 1u"A",
             inner_radius = 10u"mm",
@@ -60,12 +60,4 @@
         ),
     )
 
-    @testset "mfd" begin
-        @test mfd(cp, 0u"m", 0u"m") ≈ [0u"T" 0u"T"] atol = 0.1u"T"
-        @test mfd(cp, 1u"μm", 0u"m") ≈ mfd_z(cp, 0u"m") atol = 0.1u"T"
-    end
-
-    @testset "conductor_coordinates" begin
-        @test conductor_coordinates(cp) == [[10.0u"mm" 0.005u"m"], [10.0u"mm" -0.005u"m"]]
-    end
 end

@@ -51,7 +51,7 @@ function AntiHelmholtz(;
 end
 
 function inductance(c::Tuple{Helical,Helical})
-    N = Int(cp.top.turns[1]) * Int(cp.top.turns[2])
+    N = Int(c[1].radial_turns) * Int(c[2].axial_turns)
     R = (cp.top.inner_radius + cp.top.outer_radius) / 2
     L = cp.top.length
 
