@@ -18,21 +18,29 @@
         CurrentLoop(current = 1u"A", radius = 12.0u"mm"),
     ]
 
-    @testset "mfd" begin
-
-    end
+    current_loops = [
+        CurrentLoop(current = 1u"A", radius = 10.0u"mm", height = -1u"mm")
+        CurrentLoop(current = 1u"A", radius = 12.0u"mm", height = 2u"mm")
+    ]
 
     @testset "conductor_coordinates" begin
-        @test conductor_coordinates(
-            [
-                CurrentLoop(current = 1u"A", radius = 10.0u"mm", height = -1u"mm")
-                CurrentLoop(current = 1u"A", radius = 12.0u"mm", height = 2u"mm")
-            ],
-        ) == [(10.0u"mm", -1u"mm"), (12.0u"mm", 2u"mm")]
+        @test conductor_coordinates(current_loops) == [(10.0u"mm", -1u"mm"), (12.0u"mm", 2u"mm")]
     end
 
     @testset "conductor_length" begin
+        @test conductor_length(current_loops) == 2π * 22u"mm"
 
+    end
+
+    @testset "mfd" begin
+        ρ = 0u"m"
+
+        for z in LinRange(-20u"mm", 20u"mm", 41)
+            @test mfd(current_loops, ρ, z) == (
+                mfd(current_loops[1], ρ, z)[1] + mfd(current_loops[2], ρ, z)[1],
+                mfd(current_loops[1], ρ, z)[2] + mfd(current_loops[2], ρ, z)[2],
+            )
+        end
     end
 
 end

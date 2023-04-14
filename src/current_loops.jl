@@ -37,20 +37,16 @@ function CurrentLoops(c::Helical)
 end
 
 conductor_coordinates(c::Vector{<:CurrentLoop}) =
-    [ρz for CurrentLoop in c for ρz in conductor_coordinates(CurrentLoop)]
-conductor_length(c::Vector{<:CurrentLoop}) = sum(conductor_length(CurrentLoop) for CurrentLoop in c)
+    [coordinates for loop in c for coordinates in conductor_coordinates(loop)]
+conductor_length(c::Vector{<:CurrentLoop}) = sum(conductor_length(loop) for loop in c)
 
-"""
-    mfd(c::Vector{CurrentLoop}, ρ, z)
+function mfd(c::Vector{<:CurrentLoop}, ρ, z)
+    Bρ, Bz = 0u"T", 0u"T"
 
-Returns the magnetic flux density due to the CurrentLoop at the given point.
+    for loop in c
+        Bρ += mfd(loop, ρ, z)[1]
+        Bz += mfd(loop, ρ, z)[2]
+    end
 
-# Arguments
-- `c::Vector{CurrentLoop}`: The CurrentLoop to get the magnetic flux density of.
-- `ρ::Unitful.Length`: The radial distance from the center of the CurrentLoop.
-- `z::Unitful.Length`: The axial distance from the center of the CurrentLoop.
-
-# Return
-- `Vector{Unitful.MagneticFluxDensity}`: The radial and axial components of the magnetic flux density.
-"""
-mfd(c::Vector{CurrentLoop}, ρ, z) = sum(mfd(CurrentLoop, ρ, z) for CurrentLoop in c)
+    return Bρ, Bz
+end
