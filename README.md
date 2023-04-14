@@ -8,20 +8,17 @@ Coils.jl is a Julia library that provides various types and functions for engine
 
 ## Installation
 
+Coils.jl is a registered package and you can install it over the REPL:
 ```julia
-using Pkg
-
-Pkg.add("https://github.com/ryd-yb/Coils.jl")
+julia> ]add Coils
 ```
 
 ## Usage
-
-See the notebooks in `example`:
-
+See the notebooks in [example](example/). Clone or download those files. You can run them with [Pluto.jl](https://github.com/fonsp/Pluto.jl). Execute the following in the REPL:
 ```julia
-using Pluto
+julia> using Pluto
 
-Pluto.run()
+julia> Pluto.run()
 ```
 
 
