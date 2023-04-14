@@ -23,7 +23,7 @@ end
 CurrentLoop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length = 0u"m") =
     CurrentLoop(current, radius, height)
 
-conductor_coordinates(c::CurrentLoop) = [[c.radius c.height]]
+conductor_coordinates(c::CurrentLoop) = [(c.radius, c.height)]
 conductor_length(c::CurrentLoop) = 2π * c.radius
 
 """

@@ -1,8 +1,8 @@
-export CurrentLoopArray
+export CurrentLoops
 export mfd
 
 """
-    CurrentLoopArray(c::Helical)
+    CurrentLoops(c::Helical)
 
 Creates an array of `CurrentLoop`s mimicking a `Helical` coil.
 
@@ -12,7 +12,7 @@ Creates an array of `CurrentLoop`s mimicking a `Helical` coil.
 # Return
 - `Vector{CurrentLoop}`: An array of `CurrentLoop`s which mimic the `Helical` coil.
 """
-function CurrentLoopArray(c::Helical)
+function CurrentLoops(c::Helical)
     coils = Vector{CurrentLoop}(undef, c.radial_turns * c.axial_turns)
 
     for i = 1:c.radial_turns
@@ -36,9 +36,9 @@ function CurrentLoopArray(c::Helical)
     return coils
 end
 
-conductor_coordinates(c::Vector{CurrentLoop}) =
+conductor_coordinates(c::Vector{<:CurrentLoop}) =
     [ρz for CurrentLoop in c for ρz in conductor_coordinates(CurrentLoop)]
-conductor_length(c::Vector{CurrentLoop}) = sum(conductor_length(CurrentLoop) for CurrentLoop in c)
+conductor_length(c::Vector{<:CurrentLoop}) = sum(conductor_length(CurrentLoop) for CurrentLoop in c)
 
 """
     mfd(c::Vector{CurrentLoop}, ρ, z)

@@ -6,10 +6,10 @@
 
     @testset "conductor_coordinates" begin
         @test conductor_coordinates(CurrentLoop(current = 1u"A", radius = 10u"mm")) ==
-              [[10u"mm" 0u"mm"]]
+              [(10u"mm", 0u"mm")]
         @test conductor_coordinates(
             CurrentLoop(current = 1u"A", radius = 10u"mm", height = -5u"mm"),
-        ) == [[10u"mm" -5u"mm"]]
+        ) == [(10u"mm", -5u"mm")]
     end
 
     @testset "conductor_length" begin
