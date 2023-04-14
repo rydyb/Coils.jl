@@ -37,6 +37,24 @@ function CurrentLoops(c::Helical)
 end
 
 """
+    CurrentLoops(c::Tuple{<:Helical,<:Helical})
+
+Creates an array of `CurrentLoop`s mimicking a (anti-)Helmholtz configuration of `Helical` coils.
+
+# Arguments
+- `c::Tuple{Helical,Helical}`: The two helical coils to mimic.
+
+# Return
+- `Vector{CurrentLoop}`: An array of `CurrentLoop`s which mimic the (anti-)Helmholtz configuration of `Helical` coils.
+"""
+function CurrentLoops(c::Tuple{<:Helical,<:Helical})
+    top = CurrentLoops(c[1])
+    bottom = CurrentLoops(c[2])
+
+    return vcat(top, bottom)
+end
+
+"""
     conductor_coordinates(c::CurrentLoop)
 
 Returns the coordinates of the conductor.
