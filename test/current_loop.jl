@@ -47,13 +47,9 @@
         for (ρ, z, B) in comsol
             @test round(u"Gauss", norm(mfd(current_loop, ρ, z)); sigdigits = 4) ≈ B rtol = 1e-3
         end
-    end
-
-    @testset "mfd_z" begin
-        current_loop = CurrentLoop(current = 1u"A", radius = 10u"mm", height = 10u"mm")
 
         for z in LinRange(-20u"mm", 20u"mm", 41)
-            @test mfd_z(current_loop, z) ≈ mfd(current_loop, 0u"m", z)[2] rtol = 1e-6
+            @test mfdz(current_loop, z) ≈ mfd(current_loop, 0u"m", z) rtol = 1e-6
         end
     end
 

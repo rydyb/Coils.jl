@@ -82,41 +82,30 @@ $$\boldsymbol{B}(\rho=0,z)
 # ╔═╡ 1a611c41-9edb-434a-a3aa-398e89e75b02
 md"Current $(@bind current_A NumberField(1:1000, default=1)) A"
 
+# ╔═╡ e258400f-775a-41f3-a9ce-d97900679a5a
+current = current_A * 1u"A"
+
 # ╔═╡ 4458a7e9-0a7f-4f52-8064-09bf4c883a86
 md"Radius $(@bind radius_mm NumberField(1:100, default=10)) mm"
 
 # ╔═╡ 0f1e781e-5918-4651-b455-a2dee7bdd69b
-begin
-	current = current_A * 1u"A"
-	radius = radius_mm * 1u"mm"
-end;
+radius = radius_mm * 1u"mm"
+
+# ╔═╡ 88e92324-1060-4f52-8bf5-32f1d39aca9c
+md"Height $(@bind height_mm NumberField(-50:50, default=0)) mm"
+
+# ╔═╡ ee77604b-18bd-46ec-8619-aa260d42ac7d
+height = height_mm * 1u"mm"
 
 # ╔═╡ 2a8d3d22-0bb1-4362-a1b6-6d92340a89c5
-current_loop = CurrentLoop(current=current, radius=radius)
+current_loop = CurrentLoop(current=current, radius=radius, height=height)
 
-# ╔═╡ 4d1a0f75-f9cc-4396-b5cc-1bb410eb5e4a
-ρ = LinRange(0u"mm", 1.5radius, 100);
-
-# ╔═╡ 2cccb15a-9e56-401a-8d12-f1afe986186a
-z = LinRange(-0.6radius, 0.6radius, 100);
-
-# ╔═╡ 387259d6-a752-4a4d-8f19-ac7a97c6961e
+# ╔═╡ 3a56b527-8afc-4d3e-a4f0-3470c520a530
 let
-	p1 = plot(z, reduce(vcat, mfd.(Ref(current_loop), 0.0u"m", z)),
-		seriestype=:scatter,
-		markers=[:circle :hex],
-		labels=["Bρ" "Bz"],
-		title="Axial ρ=0",
-		xlabel="Axial coordinate z",
-		ylabel="Magnetic flux density B",
-  	)
-	plot!(z, map(B -> B[2], mfd_z.(Ref(current_loop), z)),
-		label="",
-		color="black",
-		linewidth=2,
-	)
-
-	p2 = plot(ρ, reduce(vcat, mfd.(Ref(current_loop), ρ, 0.0u"m")),
+	ρ = LinRange(0u"mm", 1.5radius, 100)
+	z = 0.0u"m"
+	
+	plot(ρ, hcat(mfd.(Ref(current_loop), ρ, z)...)',
     	seriestype=:scatter,
     	markers=[:circle :hex],
     	labels=["Bρ" "Bz"],
@@ -125,16 +114,38 @@ let
     	ylabel="Magnetic flux density B",
   	)
 
-	ρz = reduce(vcat, conductor_coordinates(current_loop))
-  	vline!(p2, ρz[:, 1], label="")
-  	vline!(p1, ρz[:, 2], label="")
+	vline!(map(x -> x[1], conductor_coordinates(current_loop)), label="")
+end
 
-  	plot(p1, p2)
+# ╔═╡ f457852f-9574-4772-b623-debad2020a5e
+let
+	ρ = 0.0u"m"
+	z = LinRange(-0.6radius, 0.6radius, 100)
+	
+	plot(z, hcat(mfd.(Ref(current_loop), ρ, z)...)',
+		seriestype=:scatter,
+		markers=[:circle :hex],
+		labels=["Bρ" "Bz"],
+		title="Axial ρ=0",
+		xlabel="Axial coordinate z",
+		ylabel="Magnetic flux density B",
+  	)
+
+	plot!(z, map(B -> B[2], mfd.(Ref(current_loop), z)),
+		label="",
+		color="black",
+		linewidth=2,
+	)
+
+	vline!(map(x -> x[2], conductor_coordinates(current_loop)), label="")
 end
 
 # ╔═╡ deab93a7-340c-404e-8a13-1d18e571104a
 let
-	B = [mfd(current_loop, ρi, zi) for zi in z, ρi in ρ]
+	ρ = LinRange(0u"mm", 1.5radius, 100)
+	z = LinRange(-0.6radius, 0.6radius, 100)
+
+	B = reshape([mfd(current_loop, ρ, z) for ρ in ρ for z in z], 100, 100)
 
 	p1 = heatmap(ρ, z, map(B -> B[1], B),
     	c=:viridis,
@@ -151,9 +162,9 @@ let
     	ylabel="Axial coordinate z",
   	)
 
-  	ρz = reduce(vcat, conductor_coordinates(current_loop))
-  	scatter!(p1, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
-  	scatter!(p2, ρz[:, 1], ρz[:, 2], markershape=:circle, legend=false)
+  	cc = conductor_coordinates(current_loop)
+  	scatter!(p1, cc, markershape=:circle, legend=false)
+  	scatter!(p2, cc, markershape=:circle, legend=false)
 
   	plot(p1, p2, plot_title="Magnetic flux density")
 end
@@ -164,10 +175,12 @@ end
 # ╟─b198599a-6bae-4b7c-a4f7-72f29966d54e
 # ╟─9943a035-7183-4a48-a30e-c505cfb0cf4e
 # ╟─1a611c41-9edb-434a-a3aa-398e89e75b02
+# ╟─e258400f-775a-41f3-a9ce-d97900679a5a
 # ╟─4458a7e9-0a7f-4f52-8064-09bf4c883a86
 # ╟─0f1e781e-5918-4651-b455-a2dee7bdd69b
+# ╟─88e92324-1060-4f52-8bf5-32f1d39aca9c
+# ╟─ee77604b-18bd-46ec-8619-aa260d42ac7d
 # ╟─2a8d3d22-0bb1-4362-a1b6-6d92340a89c5
-# ╠═4d1a0f75-f9cc-4396-b5cc-1bb410eb5e4a
-# ╠═2cccb15a-9e56-401a-8d12-f1afe986186a
-# ╟─387259d6-a752-4a4d-8f19-ac7a97c6961e
-# ╟─deab93a7-340c-404e-8a13-1d18e571104a
+# ╟─3a56b527-8afc-4d3e-a4f0-3470c520a530
+# ╟─f457852f-9574-4772-b623-debad2020a5e
+# ╠═deab93a7-340c-404e-8a13-1d18e571104a

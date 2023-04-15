@@ -2,7 +2,7 @@ using Elliptic
 using PhysicalConstants.CODATA2018: μ_0
 
 export CurrentLoop
-export mfd_z
+export mfdz
 
 """
     CurrentLoop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length = 0u"m")
@@ -50,7 +50,7 @@ function mfd(c::CurrentLoop, ρ, z)
 
     # α becomes zero for z -> 0 when ρ -> R
     if iszero(z) && R ≈ ρ
-        return [0u"T" 0u"T"]
+        return [0.0, 0.0] .* u"Gauss"
     end
 
     α² = R^2 + ρ^2 + z^2 - 2R * ρ
@@ -65,18 +65,18 @@ function mfd(c::CurrentLoop, ρ, z)
 
     # Bρ diverges for ρ -> 0
     if iszero(ρ)
-        Bρ = 0u"T"
+        Bρ = 0.0u"Gauss"
     else
         Bρ = (C / (α² * β)) * ((R^2 + ρ^2 + z^2) * E - α² * K) * (z / ρ)
     end
 
     Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
-    return upreferred(Bρ), upreferred(Bz)
+    return uconvert.(u"Gauss", [Bρ, Bz])
 end
 
 """
-    mfd_z(c::CurrentLoop, z)
+    mfdz(c::CurrentLoop, z)
 
 Computes the axial magnetic flux density along the z-axis according to [3].
 
@@ -89,12 +89,17 @@ Computes the axial magnetic flux density along the z-axis according to [3].
 # Returns
 - `Bz::Unitful.MagneticFluxDensity`: The axial magnetic flux density.
 """
-function mfd_z(c::CurrentLoop, z)
+function mfdz(c::CurrentLoop, z)
     I = c.current
     R = c.radius
     z = z - c.height
 
+    Bρ = 0.0u"Gauss"
     Bz = (μ_0 * I / 2) * R^2 / (R^2 + z^2)^(3 / 2)
 
-    return upreferred(Bz)
+    if iszero(Bz)
+        Bz = Bρ
+    end
+
+    return uconvert.(u"Gauss", [Bρ, Bz])
 end

@@ -103,5 +103,5 @@ function mfd(c::Vector{<:CurrentLoop}, ρ, z)
         Bz += mfd(loop, ρ, z)[2]
     end
 
-    return Bρ, Bz
+    return uconvert.(u"Gauss", [Bρ, Bz])
 end
