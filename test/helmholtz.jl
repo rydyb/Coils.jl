@@ -30,4 +30,16 @@
 
     end
 
+    @testset "self_inductance" begin
+
+        @test self_inductance(Helmholtz(coil = coil)) == total_inductance(coil)
+
+    end
+
+    @testset "mutual_inductance" begin
+
+        @test mutual_inductance(Helmholtz(coil = coil)) ≈ 0.196u"μH" rtol = 1e-2
+
+    end
+
 end

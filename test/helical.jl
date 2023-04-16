@@ -75,4 +75,12 @@
 
     end
 
+    @testset "total_inductance" begin
+
+        @test total_inductance(
+            Solenoid(current = 1u"A", radius = 5u"mm", length = 20u"mm", turns = UInt8(10)),
+        ) ≈ 0.4u"μH" rtol = 0.1
+
+    end
+
 end

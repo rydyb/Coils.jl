@@ -103,6 +103,7 @@ Solenoid(;
     axial_turns = turns,
 )
 
+const NotSolenoidError = ArgumentError("Helical coil is not a solenoid")
 
 """
     mfdz(c::Helical)
@@ -116,10 +117,13 @@ Computes the magnetic flux density for a solenoid according to [1].
 
 # Returns
 - `Vector{Unitful.MagneticFluxDensity}`: The radial and axial magnetic flux density components.
+
+# Throws
+- `NotSolenoidError`: If the coil is not a solenoid.
 """
 function mfdz(c::Helical)
     if (c.radial_turns > 1)
-        throw(ArgumentError("Only solenoids are supported"))
+        throw(NotSolenoidError)
     end
 
     I = c.current
@@ -131,4 +135,25 @@ function mfdz(c::Helical)
     Bz = μ_0 * I * N / √((2R)^2 + L^2)
 
     return uconvert.(u"Gauss", [Bρ, Bz])
+end
+
+"""
+    total_inductance(c::Helical)
+
+Computes the total inductance of a helical coil according to [1].
+
+- [1]: https://de.wikipedia.org/wiki/Zylinderspule#Induktivit%C3%A4t
+
+# Arguments
+- `c::Helical`: The helical coil.
+
+# Returns
+- `Unitful.Inductance`: The self inductance.
+"""
+function total_inductance(c::Helical)
+    R = (c.outer_radius + c.inner_radius) / 2
+    N = c.radial_turns * c.axial_turns
+    L = c.length
+
+    return uconvert(u"μH", π * μ_0 * N^2 * R^2 / (L + 0.9R))
 end

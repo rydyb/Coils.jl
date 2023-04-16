@@ -28,31 +28,6 @@ AntiHelmholtz(;
 ) = Helmholtz(coil, separation, -1)
 
 """
-    inductance(c::Helmholtz)
-
-Returns the approximate inductance of the (anti-)Helmholtz coil according to Ref. [1]
-
-- [1]: https://de.wikipedia.org/wiki/Helmholtz-Spule#Induktivit%C3%A4t
-
-# Arguments
-- `c::Helmholtz`: The (anti-)Helmholtz coil.
-
-# Returns
-- `Unitful.Inductance`: The inductance of the (anti-)Helmholtz coil.
-"""
-function inductance(c::Helmholtz)
-    N = Int(c.coil.radial_turns) * Int(c.coil.axial_turns)
-    R = (c.coil.inner_radius + c.coil.outer_radius) / 2
-    L = c.coil.length
-
-    C = 2μ_0 * R * N^2
-    L1 = π * R / (L + 2R / 2.2)
-    L2 = 4.941 / 4π
-
-    return C * (L1 + L2 * c.polarity)
-end
-
-"""
     mfdz(c::Helmholtz)
 
 Computes the magnetic flux density at the center of an infinite-length (anti-)Helmholtz coil according to [1].
@@ -82,4 +57,59 @@ function mfdz(c::Helmholtz)
     Bz = (4 / 5)^(3 / 2) * μ_0 * I * N / R
 
     return uconvert.(u"Gauss", [Bρ, Bz])
+end
+
+"""
+    self_inductance(c::Helmholtz)
+
+Computes an approximate self inductance of each of the coils in (anti-)Helmholtz configuration.
+
+Dispatches the computation to `total_inductance` of the coil configuration.
+
+# Arguments
+- `c::Helmholtz`: The (anti-)Helmholtz coil.
+
+# Returns
+- `Unitful.Inductance`: The self inductance of each of the coils in (anti-)Helmholtz configuration.
+"""
+self_inductance(c::Helmholtz) = total_inductance(c.coil)
+
+"""
+    mutual_inductance(c::Helmholtz)
+
+Computes an approximate mutual inductance between the coils of the (anti-)Helmholtz pair according to Ref. [1]
+
+- [1]: https://de.wikipedia.org/wiki/Helmholtz-Spule#Induktivit%C3%A4t
+
+# Arguments
+- `c::Helmholtz`: The (anti-)Helmholtz coil.
+
+# Returns
+- `Unitful.Inductance`: The mutual inductance between the coils of the (anti-)Helmholtz pair.
+"""
+function mutual_inductance(c::Helmholtz)
+    N = Int(c.coil.radial_turns) * Int(c.coil.axial_turns)
+    R = (c.coil.inner_radius + c.coil.outer_radius) / 2
+
+    return uconvert(u"μH", 4.941 * N^2 * R * (μ_0 / 4π))
+end
+
+"""
+    total_inductance(c::Helmholtz)
+
+Computes an approximate total inductance of the (anti-)Helmholtz coil according to Ref. [1]
+
+- [1]: https://de.wikipedia.org/wiki/Helmholtz-Spule#Induktivit%C3%A4t
+
+# Arguments
+- `c::Helmholtz`: The (anti-)Helmholtz coil.
+
+# Returns
+- `Unitful.Inductance`: The inductance of the (anti-)Helmholtz coil.
+"""
+function total_inductance(c::Helmholtz)
+    L_self = total_inductance(c.coil)
+    L_mutual = mutual_inductance(c) * c.polarity
+
+    return 2 * (L_self + L_mutual)
 end

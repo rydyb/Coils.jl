@@ -1,6 +1,7 @@
 export Coil
 export mfd, mfdz
 export conductor_coordinates, conductor_length
+export self_inductance, mutual_inductance, total_inductance
 
 """
     Coil

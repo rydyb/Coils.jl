@@ -8,8 +8,18 @@ Coils.Helmholtz
 Coils.AntiHelmholtz
 ```
 
+Warning: The values for the inductances have not been cross-checked!
+
 ```@docs
-Coils.inductance(c::Helmholtz)
+Coils.self_inductance(c::Helmholtz)
+```
+
+```@docs
+Coils.mutual_inductance(c::Helmholtz)
+```
+
+```@docs
+Coils.total_inductance(c::Helmholtz)
 ```
 
 ```@docs
