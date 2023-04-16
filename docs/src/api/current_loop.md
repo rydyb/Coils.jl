@@ -5,9 +5,9 @@ Coils.CurrentLoop
 ```
 
 ```@docs
-Coils.mfd
+Coils.mfd(c::CurrentLoop, ρ, z)
 ```
 
 ```@docs
-Coils.mfd_z
+Coils.mfdz(c::CurrentLoop, z)
 ```

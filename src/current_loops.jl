@@ -4,13 +4,13 @@ export mfd
 """
     CurrentLoops(c::Helical)
 
-Creates an array of `CurrentLoop`s mimicking a `Helical` coil.
+Creates an array of `CurrentLoop`s approximating a `Helical` coil.
 
 # Arguments
 - `c::Helical`: The helical coil to mimic.
 
 # Return
-- `Vector{CurrentLoop}`: An array of `CurrentLoop`s which mimic the `Helical` coil.
+- `Vector{CurrentLoop}`: An array of `CurrentLoop`s.
 """
 function CurrentLoops(c::Helical)
     coils = Vector{CurrentLoop}(undef, c.radial_turns * c.axial_turns)
@@ -29,7 +29,7 @@ function CurrentLoops(c::Helical)
                 h = c.height - c.length / 2 + c.length * (j - 1) / (c.axial_turns - 1)
             end
 
-            coils[(i-1)*c.axial_turns+j] = CurrentLoop(current = c.current, radius = R, height = h)
+            coils[(i-1)*c.axial_turns+j] = CurrentLoop(current=c.current, radius=R, height=h)
         end
     end
 
@@ -37,21 +37,37 @@ function CurrentLoops(c::Helical)
 end
 
 """
-    CurrentLoops(c::Tuple{<:Helical,<:Helical})
+    CurrentLoops(c::Helmholtz)
 
-Creates an array of `CurrentLoop`s mimicking a (anti-)Helmholtz configuration of `Helical` coils.
+Creates an array of `CurrentLoop`s approximating a(n) (anti-)Helmholtz configuration of `Helical` coils.
 
 # Arguments
-- `c::Tuple{Helical,Helical}`: The two helical coils to mimic.
+- `c::Helmholtz`: The (anti-)Helmholtz coil.
 
 # Return
-- `Vector{CurrentLoop}`: An array of `CurrentLoop`s which mimic the (anti-)Helmholtz configuration of `Helical` coils.
+- `Vector{CurrentLoop}`: An array of `CurrentLoop`s.
 """
-function CurrentLoops(c::Tuple{<:Helical,<:Helical})
-    top = CurrentLoops(c[1])
-    bottom = CurrentLoops(c[2])
+function CurrentLoops(c::Helmholtz)
+    top = Helical(
+        current=c.coil.current,
+        inner_radius=c.coil.inner_radius,
+        outer_radius=c.coil.outer_radius,
+        length=c.coil.length,
+        height=c.coil.height + c.separation / 2,
+        radial_turns=c.coil.radial_turns,
+        axial_turns=c.coil.axial_turns,
+    )
+    bottom = Helical(
+        current=c.coil.current * c.polarity,
+        inner_radius=c.coil.inner_radius,
+        outer_radius=c.coil.outer_radius,
+        length=c.coil.length,
+        height=c.coil.height - c.separation / 2,
+        radial_turns=c.coil.radial_turns,
+        axial_turns=c.coil.axial_turns,
+    )
 
-    return vcat(top, bottom)
+    return vcat(CurrentLoops(top), CurrentLoops(bottom))
 end
 
 """

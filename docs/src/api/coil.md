@@ -9,6 +9,10 @@ Coils.mfd
 ```
 
 ```@docs
+Coils.mfdz
+```
+
+```@docs
 Coils.conductor_coordinates
 ```
 

@@ -2,17 +2,16 @@ using Elliptic
 using PhysicalConstants.CODATA2018: μ_0
 
 export CurrentLoop
-export mfdz
 
 """
     CurrentLoop(; current::Unitful.Current, radius::Unitful.Length, height::Unitful.Length = 0u"m")
 
 A circular current CurrentLoop.
 
-# Fields
-- `current::Unitful.Current`: The current in the CurrentLoop.
-- `radius::Unitful.Length`: The radius of the CurrentLoop.
-- `height::Unitful.Length`: The height of the CurrentLoop.
+# Keywords
+- `current::Unitful.Current`: The current running through the loop.
+- `radius::Unitful.Length`: The radius of the current loop.
+- `height::Unitful.Length`: The height of the current loop, zero by default.
 """
 struct CurrentLoop{T1<:Unitful.Current,T2<:Unitful.Length,T3<:Unitful.Length} <: Coil
     current::T1
@@ -29,10 +28,10 @@ conductor_length(c::CurrentLoop) = 2π * c.radius
 """
     mfd(c::CurrentLoop, ρ, z)
 
-Computes the radial and axial magnetic flux density according to analytical solution to the Biot-Savart law, see [1] and [2].
+Computes the magnetic flux density according to analytical solution to the Biot-Savart law, see [1] and [2].
 
-- [1] Simpson, James C. et al. “Simple Analytic Expressions for the Magnetic Field of a Circular Current Loop.” (2001).
-- [2] Jang, Taehun, et al. "Off-axis magnetic fields of a circular loop and a solenoid for the electromagnetic induction of a magnetic pendulum."
+- [1]: Simpson, James C. et al. “Simple Analytic Expressions for the Magnetic Field of a Circular Current Loop.” (2001).
+- [2]: Jang, Taehun, et al. "Off-axis magnetic fields of a circular loop and a solenoid for the electromagnetic induction of a magnetic pendulum."
 
 # Arguments
 - `c::CurrentLoop`: The CurrentLoop.
@@ -40,8 +39,7 @@ Computes the radial and axial magnetic flux density according to analytical solu
 - `z::Unitful.Length`: The axial coordinate.
 
 # Returns
-- `Bρ::Unitful.MagneticFluxDensity`: The radial magnetic flux density.
-- `Bz::Unitful.MagneticFluxDensity`: The axial magnetic flux density.
+- `Vector{Unitful.MagneticFluxDensity}`: The radial and axial magnetic flux density components.
 """
 function mfd(c::CurrentLoop, ρ, z)
     I = c.current
@@ -76,20 +74,20 @@ function mfd(c::CurrentLoop, ρ, z)
 end
 
 """
-    mfdz(c::CurrentLoop, z)
+    mfdz(c::CurrentLoop[, z])
 
-Computes the axial magnetic flux density along the z-axis according to [3].
+Computes the magnetic flux density along the z-axis according to [1].
 
-- [3] https://de.wikipedia.org/wiki/Leiterschleife
+- [1]: https://de.wikipedia.org/wiki/Leiterschleife
 
 # Arguments
 - `c::CurrentLoop`: The CurrentLoop.
-- `z::Unitful.Length`: The axial coordinate.
+- `z::Unitful.Length`: The axial coordinate by default equal to the height of current loop `c`.
 
 # Returns
-- `Bz::Unitful.MagneticFluxDensity`: The axial magnetic flux density.
+- `Vector{Unitful.MagneticFluxDensity}`: The radial and axial magnetic flux density components.
 """
-function mfdz(c::CurrentLoop, z)
+function mfdz(c::CurrentLoop, z = c.height)
     I = c.current
     R = c.radius
     z = z - c.height

@@ -131,7 +131,7 @@ let
 		ylabel="Magnetic flux density B",
   	)
 
-	plot!(z, map(B -> B[2], mfd.(Ref(current_loop), z)),
+	plot!(z, map(B -> B[2], mfdz.(Ref(current_loop), z)),
 		label="",
 		color="black",
 		linewidth=2,
@@ -183,4 +183,4 @@ end
 # ╟─2a8d3d22-0bb1-4362-a1b6-6d92340a89c5
 # ╟─3a56b527-8afc-4d3e-a4f0-3470c520a530
 # ╟─f457852f-9574-4772-b623-debad2020a5e
-# ╠═deab93a7-340c-404e-8a13-1d18e571104a
+# ╟─deab93a7-340c-404e-8a13-1d18e571104a

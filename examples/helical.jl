@@ -68,7 +68,7 @@ md"Number of radial turns: $(@bind radial_turns_int NumberField(1:10, default=2)
 radial_turns = UInt8(radial_turns_int)
 
 # ╔═╡ 763f9094-8983-4096-b68d-5a6e4a191459
-coil = Helical(
+helical = Helical(
 	current=current,
 	inner_radius=inner_radius,
 	outer_radius=outer_radius,
@@ -78,7 +78,7 @@ coil = Helical(
 )
 
 # ╔═╡ 39412042-a4a9-466d-891e-06d085f6bb82
-current_loops = CurrentLoops(coil)
+current_loops = CurrentLoops(helical)
 
 # ╔═╡ 6b74155f-7de4-4802-be06-b5b64be40c80
 let
@@ -110,6 +110,12 @@ let
 		xlabel="Axial coordinate z",
 		ylabel="Magnetic flux density B",
   	)
+
+	try
+		hline!(mfdz(helical))
+	catch y
+    	print(y)
+	end
 
 	vline!(map(x -> x[2], conductor_coordinates(current_loops)), label="")
 end

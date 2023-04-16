@@ -103,3 +103,31 @@ Solenoid(;
     axial_turns = turns,
 )
 
+
+"""
+    mfdz(c::Helical)
+
+Computes the magnetic flux density for an infinite-length solenoid according to [1].
+
+- [1]: https://en.wikipedia.org/wiki/Solenoid
+
+# Arguments
+- `c::Helical`: The solenoid.
+
+# Returns
+- `Vector{Unitful.MagneticFluxDensity}`: The radial and axial magnetic flux density components.
+"""
+function mfdz(c::Helical)
+    if (c.radial_turns > 1)
+        throw(ArgumentError("Only solenoids are supported"))
+    end
+
+    I = c.current
+    N = c.axial_turns
+    L = c.length
+
+    Bρ = 0.0u"Gauss"
+    Bz = μ_0 * I * N / L
+
+    return uconvert.(u"Gauss", [Bρ, Bz])
+end
