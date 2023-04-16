@@ -107,9 +107,9 @@ Solenoid(;
 """
     mfdz(c::Helical)
 
-Computes the magnetic flux density for an infinite-length solenoid according to [1].
+Computes the magnetic flux density for a solenoid according to [1].
 
-- [1]: https://en.wikipedia.org/wiki/Solenoid
+- [1]: https://de.wikipedia.org/wiki/Zylinderspule#Magnetfeld
 
 # Arguments
 - `c::Helical`: The solenoid.
@@ -123,11 +123,12 @@ function mfdz(c::Helical)
     end
 
     I = c.current
+    R = (c.outer_radius + c.inner_radius) / 2
     N = c.axial_turns
     L = c.length
 
     Bρ = 0.0u"Gauss"
-    Bz = μ_0 * I * N / L
+    Bz = μ_0 * I * N / √((2R)^2 + L^2)
 
     return uconvert.(u"Gauss", [Bρ, Bz])
 end
