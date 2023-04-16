@@ -58,4 +58,21 @@
         axial_turns = UInt8(6),
     )
 
+    @testset "mfdz" begin
+
+        @test mfdz(
+            Solenoid(current = 1u"A", radius = 5u"mm", length = 20u"mm", turns = UInt8(10)),
+        ) ≈ [0.0, 5.62] .* u"Gauss" rtol = 1e-3
+        @test mfdz(
+            Solenoid(
+                current = 1u"A",
+                radius = 5u"mm",
+                length = 20u"mm",
+                height = 40u"mm",
+                turns = UInt8(40),
+            ),
+        ) ≈ [0.0, 22.48] .* u"Gauss" rtol = 1e-4
+
+    end
+
 end

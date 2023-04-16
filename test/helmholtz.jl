@@ -13,4 +13,21 @@
 
     @test AntiHelmholtz(coil = coil, separation = 100u"mm") == Helmholtz(coil, 100u"mm", -1)
 
+    @testset "mfdz" begin
+
+        @test mfdz(
+            Helmholtz(
+                coil = Pancake(
+                    current = 1u"A",
+                    inner_radius = 1u"m",
+                    outer_radius = 1u"m",
+                    turns = UInt8(1),
+                ),
+            ),
+        ) ≈ [0.0, 8.99e-3] .* u"Gauss" rtol = 1e-3
+
+        @test mfdz(AntiHelmholtz(coil = coil)) == [0.0, 0.0] .* u"Gauss"
+
+    end
+
 end
