@@ -14,7 +14,7 @@ julia> ]add Coils
 ```
 
 ## Usage
-See the notebooks in [example](example/). Clone or download those files. You can run them with [Pluto.jl](https://github.com/fonsp/Pluto.jl). Execute the following in the REPL:
+See the notebooks in [example](examples/). Clone or download those files. You can run them with [Pluto.jl](https://github.com/fonsp/Pluto.jl). Execute the following in the REPL:
 ```julia
 julia> using Pluto
 
