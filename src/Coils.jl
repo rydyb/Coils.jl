@@ -2,10 +2,10 @@ module Coils
 
 using Unitful
 
-include("coil.jl")
-include("current_loop.jl")
-include("helical.jl")
-include("helmholtz.jl")
-include("current_loops.jl")
+include("conductor.jl")
+include("circular_loop.jl")
+include("rectangular_loop.jl")
+include("solenoid.jl")
+include("superposition.jl")
 
 end # module Coils
