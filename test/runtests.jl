@@ -1,9 +1,8 @@
 using Coils
 using Test
-using Unitful
-using LinearAlgebra
+using DynamicQuantities
 
-include("current_loop.jl")
-include("helical.jl")
-include("helmholtz.jl")
-include("current_loops.jl")
+@register_unit Gauss 1e-4u"T"
+
+include("conductor_length.jl")
+include("magnetic_flux_density.jl")

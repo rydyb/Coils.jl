@@ -1,23 +1,12 @@
-@testset "CurrentLoop" begin
+using LinearAlgebra: norm
 
-    @test CurrentLoop(current = 1u"A", radius = 10u"mm") == CurrentLoop(1u"A", 10u"mm", 0u"m")
-    @test CurrentLoop(current = 1u"A", radius = 10u"mm", height = -5u"mm") ==
-          CurrentLoop(1u"A", 10u"mm", -5u"mm")
+@testset "magnetic_flux_density" begin
 
-    @testset "conductor_coordinates" begin
-        @test conductor_coordinates(CurrentLoop(current = 1u"A", radius = 10u"mm")) ==
-              [(10u"mm", 0u"mm")]
-        @test conductor_coordinates(
-            CurrentLoop(current = 1u"A", radius = 10u"mm", height = -5u"mm"),
-        ) == [(10u"mm", -5u"mm")]
-    end
+    @testset "CircularLoop" begin
 
-    @testset "conductor_length" begin
-        @test conductor_length(CurrentLoop(current = 1u"A", radius = 10u"mm")) == 2π * 10u"mm"
-    end
+        height = 26.5u"mm"
 
-    @testset "mfd" begin
-        current_loop = CurrentLoop(current = 300u"A", radius = 39.6u"mm", height = 26.5u"mm")
+        loop = CircularLoop(current = 300u"A", radius = 39.6u"mm")
 
         # should equal results from Comsol 5.5 simulation (wire diameter = 1.0 mm)
         comsol = [
@@ -45,12 +34,7 @@
             (10u"mm", 0u"mm", 27.23u"Gauss"),
         ]
         for (ρ, z, B) in comsol
-            @test round(u"Gauss", norm(mfd(current_loop, ρ, z)); sigdigits = 4) ≈ B rtol = 1e-3
-        end
-
-        for z in LinRange(-20u"mm", 20u"mm", 41)
-            @test mfdz(current_loop, z) ≈ mfd(current_loop, 0u"m", z) rtol = 1e-6
+            @test norm(magnetic_flux_density(loop, ρ, z - height)) ≈ B rtol = 1e-3
         end
     end
-
 end

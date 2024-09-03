@@ -1,11 +1,11 @@
 module Coils
 
-using Unitful
+using DynamicQuantities
 
-include("conductor.jl")
-include("circular_loop.jl")
-include("rectangular_loop.jl")
-include("solenoid.jl")
-include("superposition.jl")
+@register_unit Gauss 1e-4u"T"
+
+include("types.jl")
+include("conductor_length.jl")
+include("magnetic_flux_density.jl")
 
 end # module Coils
