@@ -1,6 +1,7 @@
 import Unitful: Unitful
 using DynamicQuantities
 
+export IncompatibleUnitsError
 export qconvert
 
 struct IncompatibleUnitsError <: Exception
@@ -13,7 +14,9 @@ Base.showerror(io::IO, e::IncompatibleUnitsError) =
 
 
 function qconvert(x::AbstractQuantity, default_unit::AbstractQuantity)
-    # TODO: check for dimensional compatibility
+    if dimension(x) != dimension(default_unit)
+        throw(IncompatibleUnitsError(dimension(x), dimension(default_unit)))
+    end
     return x
 end
 
@@ -22,6 +25,9 @@ function qconvert(x::Number, default_unit::AbstractQuantity)
 end
 
 function qconvert(x::Unitful.Quantity, default_unit::AbstractQuantity)
-    # TODO: check for dimensional compatibility
-    return Unitful.ustrip(x) * default_unit
+    y = convert(Quantity, x)
+    if dimension(y) != dimension(default_unit)
+        throw(IncompatibleUnitsError(y, default_unit))
+    end
+    return ustrip(y) * default_unit
 end
