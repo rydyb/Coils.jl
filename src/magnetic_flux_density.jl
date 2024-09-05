@@ -5,11 +5,14 @@ using LinearAlgebra: norm
 export magnetic_flux_density
 
 function magnetic_flux_density(c::CircularLoop, ρ, z)
-    I = c.current
-    R = c.radius
+    I = qconvert(c.current, u"A")
+    R = qconvert(c.radius, u"mm")
+
+    ρ = qconvert(ρ, u"mm")
+    z = qconvert(z, u"mm")
 
     if iszero(z) && R ≈ ρ
-        return [0.0, 0.0]
+        return [0.0u"Gauss", 0.0u"Gauss"]
     end
 
     α² = R^2 + ρ^2 + z^2 - 2R * ρ

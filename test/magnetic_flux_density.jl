@@ -36,5 +36,7 @@ using LinearAlgebra: norm
         for (ρ, z, B) in comsol
             @test norm(magnetic_flux_density(loop, ρ, z - height)) ≈ B rtol = 1e-3
         end
+
+        @test norm(magnetic_flux_density(loop, 0, 0)) ≈ 47.59u"Gauss" rtol = 1e-3
     end
 end

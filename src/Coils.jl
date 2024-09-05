@@ -1,10 +1,8 @@
 module Coils
 
-using DynamicQuantities
-
-@register_unit Gauss 1e-4u"T"
-
+include("units.jl")
 include("types.jl")
+include("utils.jl")
 include("conductor_length.jl")
 include("magnetic_flux_density.jl")
 
