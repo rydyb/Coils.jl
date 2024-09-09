@@ -12,6 +12,6 @@ function conductor_length(t::Translation)
     return conductor_length(t.coil)
 end
 
-function conductor_length(v::Vector{Coil})
+function conductor_length(v::Vector{<:Coil})
     return sum(conductor_length(c) for c in v)
 end

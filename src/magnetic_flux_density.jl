@@ -91,10 +91,6 @@ function magnetic_flux_density(r::RectangularLoop, x::Number, y::Number, z::Numb
     return ustrip.(magnetic_flux_density(r, x * u"mm", y * u"mm", z * u"mm"))
 end
 
-function magnetic_flux_density(v::Vector{RectangularLoop}, x, y, z)
-    return sum(magnetic_flux_density(r, x, y, z) for r in v)
-end
-
 function magnetic_flux_density(t::Translation, x, y, z)
     x0 = t.vector[1]
     y0 = t.vector[2]
@@ -119,4 +115,19 @@ function magnetic_flux_density(t::Translation, x, y, z)
     end
 
     return B
+end
+
+function magnetic_flux_density(v::Vector{<:Coil}, x, y, z)
+    Bx = 0.0u"Gauss"
+    By = 0.0u"Gauss"
+    Bz = 0.0u"Gauss"
+
+    for coil in v
+        B = magnetic_flux_density(coil, x, y, z)
+        Bx += B[1]
+        By += B[2]
+        Bz += B[3]
+    end
+
+    return Bx, By, Bz
 end

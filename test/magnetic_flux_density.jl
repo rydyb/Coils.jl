@@ -50,4 +50,33 @@ using DynamicQuantities.Constants: mu_0
         @test By ≈ 0.0u"Gauss" rtol = 1e-3
         @test Bz ≈ √2 * mu_0 * loop.current / (1π * 0.5u"m") rtol = 1e-3
     end
+
+    @testset "Helmholtz" begin
+        # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
+        loop = CircularLoop(current = 1u"A", radius = 1u"m")
+
+        helmholtz = [
+            Translation(loop, [0u"m", 0u"m", 0.5u"m"]),
+            Translation(loop, [0u"m", 0u"m", -0.5u"m"])
+        ]
+
+        B = magnetic_flux_density(helmholtz, 0u"m", 0u"m", 0u"m")
+
+        @test B[3] ≈ 0.899e-3u"T" rtol = 1e-3
+
+        #println(uconvert(us"Gauss", B[3]))
+        #println(magnetic_flux_density(loop, 0u"m", 0u"m", 0.5u"m")[3])
+        #println(magnetic_flux_density(loop, 0u"m", 0u"m", -0.5u"m")[3])#
+    end
+
+    @testset "Anti-Helmholtz" begin
+        anti_helmholtz = [
+            Translation(CircularLoop(current = 1u"A", radius = 1u"m"), [0u"m", 0u"m", 0.5u"m"]),
+            Translation(CircularLoop(current = -1u"A", radius = 1u"m"), [0u"m", 0u"m", -0.5u"m"])
+        ]
+
+        B = magnetic_flux_density(anti_helmholtz, 0u"m", 0u"m", 0u"m")
+
+        @test B[3] ≈ 0.0u"T" rtol = 1e-3
+    end
 end

@@ -1,10 +1,11 @@
-using DynamicQuantities: ustrip
+using DynamicQuantities
 
 export Coil
 export conductor_length
 export magnetic_flux_density
 export CircularLoop
 export RectangularLoop
+export Translation
 
 struct NotImplementedError <: Exception end
 
@@ -35,12 +36,16 @@ struct RectangularLoop{T1<:Number,T2<:Number,T3<:Number} <: Coil
     end
 end
 
-struct Translation{T<:Coil,V<:AbstractVector} <: Coil
-    coil::T
-    vector::V
+struct Translation{C<:Coil, T<:Number} <: Coil
+    coil::C
+    vector::Vector{T}
 
-    function Translation(coil::T, vector::V) where {T,V}
-        @assert length(vector) == 3 "vector must have three components"
-        new{T,V}(coil, vector)
+    function Translation(coil::C, x::T, y::T, z::T) where {C<:Coil, T<:Number}
+        new{C,T}(coil, [x, y, z])
+    end
+
+    function Translation(coil::C, vector::Vector{T}) where {C<:Coil,T<:Number}
+        @assert length(vector) == 3 "Translation vector must have 3 components"
+        new{C,T}(coil, vector)
     end
 end
