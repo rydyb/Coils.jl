@@ -38,20 +38,16 @@ using DynamicQuantities.Constants: mu_0
             @test norm(magnetic_flux_density(loop, ρ, z - height)) ≈ B rtol = 1e-3
         end
 
-        @test norm(magnetic_flux_density(loop, 0, 0)) ≈ 47.59u"Gauss" rtol = 1e-3
+        @test norm(magnetic_flux_density(loop, 0, 0)) ≈ 47.59 rtol = 1e-3
     end
 
     @testset "RectangularLoop" begin
 
         loop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
 
-        @test magnetic_flux_density(loop, 0u"m", 0u"m", 0u"m") ≈
-              [0.0u"Gauss", 0.0u"Gauss", √2 * mu_0 * loop.current / (1π * 0.5u"m")] rtol = 1e-3
-
-        #@test B[1] ≈ 0.0u"Gauss" rtol = 1e-3
-        #@test B[2] ≈ 0.0u"Gauss" rtol = 1e-3
-
-        #@test B[3] ≈ √2 * mu_0 * loop.current / (1π * 0.5u"m") rtol = 1e-3
-
+        Bx, By, Bz = magnetic_flux_density(loop, 0u"m", 0u"m", 0u"m")
+        @test Bx ≈ 0.0u"Gauss" rtol = 1e-3
+        @test By ≈ 0.0u"Gauss" rtol = 1e-3
+        @test Bz ≈ √2 * mu_0 * loop.current / (1π * 0.5u"m") rtol = 1e-3
     end
 end

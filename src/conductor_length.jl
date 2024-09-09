@@ -5,7 +5,7 @@ function conductor_length(r::RectangularLoop)
 end
 
 function conductor_length(c::CircularLoop)
-    return 2π * c.radius
+    return typeof(c.radius)(2π) * c.radius
 end
 
 function conductor_length(t::Translation)

@@ -4,15 +4,14 @@ using LinearAlgebra: norm
 
 export magnetic_flux_density
 
-function magnetic_flux_density(c::CircularLoop, ρ, z)
-    I = qconvert(c.current, u"A")
+function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::AbstractQuantity)
     R = qconvert(c.radius, u"mm")
+    I = qconvert(c.current, u"A")
 
-    ρ = qconvert(ρ, u"mm")
-    z = qconvert(z, u"mm")
+    B0 = 0.0u"Gauss"
 
     if iszero(z) && R ≈ ρ
-        return [0.0u"Gauss", 0.0u"Gauss"]
+        return (B0, B0, B0)
     end
 
     α² = R^2 + ρ^2 + z^2 - 2R * ρ
@@ -23,82 +22,73 @@ function magnetic_flux_density(c::CircularLoop, ρ, z)
     E = Elliptic.E(k²)
     K = Elliptic.K(k²)
 
-    C = mu_0 * I / 2π
+    C = mu_0 * I / typeof(c.current)(2π)
 
     # Bρ diverges for ρ -> 0
     if iszero(ρ)
-        Bρ = 0.0u"Gauss"
+        Bρ = B0
     else
         Bρ = (C / (α² * β)) * ((R^2 + ρ^2 + z^2) * E - α² * K) * (z / ρ)
     end
 
     Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
-    return uconvert.(us"Gauss", [Bρ, Bz])
+    return uconvert.(us"Gauss", (Bρ, B0, Bz))
 end
 
-function magnetic_flux_density(c::CircularLoop, x, y, z)
-    x = qconvert(x, u"mm")
-    y = qconvert(y, u"mm")
-    z = qconvert(z, u"mm")
+function magnetic_flux_density(c::CircularLoop, ρ::Number, z::Number)
+    return ustrip.(magnetic_flux_density(c, ρ * u"mm", z * u"mm"))
+end
 
-    ρ = norm([x, y])
-
-    return magnetic_flux_density(c, ρ, z)
+function magnetic_flux_density(c::CircularLoop, x::AbstractQuantity, y::AbstractQuantity, z::AbstractQuantity)
+    Bρ, Bz = magnetic_flux_density(c, norm((x, y)), z)
 end
 
 function magnetic_flux_density(v::Vector{CircularLoop}, x, y, z)
     return sum(magnetic_flux_density(c, x, y, z) for c in v)
 end
 
-function magnetic_flux_density(r::RectangularLoop, x, y, z)
+function magnetic_flux_density(r::RectangularLoop, x::AbstractQuantity, y::AbstractQuantity, z::AbstractQuantity)
     I = qconvert(r.current, u"A")
-    ax = qconvert(r.height / 2, u"mm")
-    ay = qconvert(r.width / 2, u"mm")
-    C = mu_0 * I / 4π
 
-    x = qconvert(x, u"mm")
-    y = qconvert(y, u"mm")
-    z = qconvert(z, u"mm")
+    ax = r.height / 2
+    ay = r.width / 2
+    C = mu_0 * I / typeof(r.current)(4π)
 
-    r1 = norm([x + ax, y + ay, z])
-    r2 = norm([x - ax, y + ay, z])
-    r3 = norm([x + ax, y - ay, z])
-    r4 = norm([x - ax, y - ay, z])
+    r1 = norm((x + ax, y + ay, z))
+    r2 = norm((x - ax, y + ay, z))
+    r3 = norm((x + ax, y - ay, z))
+    r4 = norm((x - ax, y - ay, z))
 
     f(r, s) = 1 / (r * (r - s))
 
-    Bx = -C * z * sum([
-        f(r1, y + ay)
-        -f(r2, y + ay)
-        -f(r3, y - ay)
-        +f(r4, y - ay)
-    ])
+    Bx = f(r1, y + ay)
+    Bx -= f(r2, y + ay)
+    Bx -= f(r3, y - ay)
+    Bx += f(r4, y - ay)
+    Bx *= -C * z
 
-    By = -C * z * sum([
-        f(r1, x + ax)
-        -f(r2, x - ax)
-        -f(r3, x + ax)
-        +f(r4, x - ax)
-    ])
+    By = f(r1, x + ax)
+    By -= f(r2, x - ax)
+    By -= f(r3, x + ax)
+    By += f(r4, x - ax)
+    By *= -C * z
 
-    Bz =
-        C * sum([
-            (x + ax) * f(r1, y + ay),
-            +(y + ay) * f(r1, x + ax),
-            -(x - ax) * f(r2, y + ay),
-            -(y + ay) * f(r2, x - ax),
-            -(x + ax) * f(r3, y - ay),
-            -(y - ay) * f(r3, x + ax),
-            +(x - ax) * f(r4, y - ay),
-            +(y - ay) * f(r4, x - ax),
-        ])
+    Bz = (x + ax) * f(r1, y + ay)
+    Bz += (y + ay) * f(r1, x + ax)
+    Bz -= (x - ax) * f(r2, y + ay)
+    Bz -= (y + ay) * f(r2, x - ax)
+    Bz -= (x + ax) * f(r3, y - ay)
+    Bz -= (y - ay) * f(r3, x + ax)
+    Bz += (x - ax) * f(r4, y - ay)
+    Bz += (y - ay) * f(r4, x - ax)
+    Bz *= C
 
-    Bx = qconvert(Bx, u"Gauss")
-    By = qconvert(By, u"Gauss")
-    Bz = qconvert(Bz, u"Gauss")
+    return uconvert.(us"Gauss", (Bx, By, Bz))
+end
 
-    return [Bx, By, Bz]
+function magnetic_flux_density(r::RectangularLoop, x::Number, y::Number, z::Number)
+    return ustrip.(magnetic_flux_density(r, x * u"mm", y * u"mm", z * u"mm"))
 end
 
 function magnetic_flux_density(v::Vector{RectangularLoop}, x, y, z)
