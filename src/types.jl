@@ -34,3 +34,13 @@ struct RectangularLoop{T1<:Number,T2<:Number,T3<:Number} <: Coil
         new{T1,T2,T3}(current, width, height)
     end
 end
+
+struct Translation{T<:Coil,V<:AbstractVector} <: Coil
+    coil::T
+    vector::V
+
+    function Translation(coil::T, vector::V) where {T,V}
+        @assert length(vector) == 3 "vector must have three components"
+        new{T,V}(coil, vector)
+    end
+end
