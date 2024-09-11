@@ -58,7 +58,6 @@ using DynamicQuantities.Constants: mu_0
         @test Bz ≈ √2 * mu_0 * loop.current / (1π * 0.5u"m") rtol = 1e-3
     end
 
-    """
     @testset "Helmholtz" begin
         # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
@@ -70,7 +69,7 @@ using DynamicQuantities.Constants: mu_0
             0u"m",
         )
 
-        @test B[3] ≈ 0.899e-3u"T" rtol = 1e-3
+        @test B[3] ≈ 0.899e-6u"T" rtol = 1e-3
     end
 
     @testset "Anti-Helmholtz" begin
@@ -85,5 +84,4 @@ using DynamicQuantities.Constants: mu_0
 
         @test B[3] ≈ 0.0u"T" rtol = 1e-3
     end
-    """
 end
