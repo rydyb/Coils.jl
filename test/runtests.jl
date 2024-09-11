@@ -1,7 +1,6 @@
 using Coils
 using Test
 using DynamicQuantities
-import Unitful
 
 @register_unit Gauss 1e-4u"T"
 
