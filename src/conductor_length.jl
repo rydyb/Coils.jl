@@ -1,17 +1,13 @@
 export conductor_length
 
-function conductor_length(r::RectangularLoop)
-    return 2 * (r.width + r.height)
-end
+conductor_length(::Coil) = throw(ErrorException("not implemented"))
 
-function conductor_length(c::CircularLoop)
-    return typeof(c.radius)(2π) * c.radius
-end
+conductor_length(c::RectangularLoop) = 2 * (c.width + c.height)
 
-function conductor_length(t::Translation)
-    return conductor_length(t.coil)
-end
+conductor_length(c::CircularLoop) = typeof(c.radius)(2π) * c.radius
 
-function conductor_length(v::Vector{<:Coil})
-    return sum(conductor_length(c) for c in v)
-end
+conductor_length(c::Displace) = conductor_length(c.coil)
+
+conductor_length(c::Reverse) = conductor_length(c.coil)
+
+conductor_length(v::Vector{<:Coil}) = sum(conductor_length(c) for c in v)

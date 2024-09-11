@@ -1,7 +1,7 @@
 name = "Coils"
 uuid = "ab2e6513-8582-4355-97c5-84ec58029ba0"
 authors = ["Bodo.Kaiser, Felix Wechsler (roflmaostc) fxw+git@mailbox.org"]
-version = "1.0.0"
+version = "0.3.0"
 
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
@@ -10,11 +10,12 @@ Elliptic = "b305315f-e792-5b7a-8f41-49f472929428"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PhysicalConstants = "5ad8b20f-a522-5ce9-bfc9-ddf1d5bda6ab"
 Pluto = "c3e4b0f8-55cb-11ea-2926-15256bba5781"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
-Elliptic = "1"
 DynamicQuantities = "1"
+Elliptic = "1"
 Unitful = "1.12"
 julia = "1.8, 1"
 

@@ -4,14 +4,16 @@ using LinearAlgebra: norm
 
 export magnetic_flux_density
 
-function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::AbstractQuantity)
-    R = qconvert(c.radius, u"mm")
-    I = qconvert(c.current, u"A")
+magnetic_flux_density(::Coil, args...) = throw(ErrorException("not implemented"))
 
-    B0 = 0.0u"Gauss"
+function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::AbstractQuantity)
+    R = c.radius
+    I = c.current
+
+    B0 = typeof(c.current)(0u"Gauss")
 
     if iszero(z) && R ≈ ρ
-        return (B0, B0, B0)
+        return B0, B0, B0
     end
 
     α² = R^2 + ρ^2 + z^2 - 2R * ρ
@@ -33,14 +35,15 @@ function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::Abstrac
 
     Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
-    return uconvert.(us"Gauss", (Bρ, B0, Bz))
+    return Bρ, B0, Bz
 end
 
-function magnetic_flux_density(c::CircularLoop, ρ::Number, z::Number)
-    return ustrip.(magnetic_flux_density(c, ρ * u"mm", z * u"mm"))
-end
-
-function magnetic_flux_density(c::CircularLoop, x::AbstractQuantity, y::AbstractQuantity, z::AbstractQuantity)
+function magnetic_flux_density(
+    c::CircularLoop,
+    x::AbstractQuantity,
+    y::AbstractQuantity,
+    z::AbstractQuantity,
+)
     Bρ, Bz = magnetic_flux_density(c, norm((x, y)), z)
 end
 
@@ -48,12 +51,16 @@ function magnetic_flux_density(v::Vector{CircularLoop}, x, y, z)
     return sum(magnetic_flux_density(c, x, y, z) for c in v)
 end
 
-function magnetic_flux_density(r::RectangularLoop, x::AbstractQuantity, y::AbstractQuantity, z::AbstractQuantity)
-    I = qconvert(r.current, u"A")
-
-    ax = r.height / 2
-    ay = r.width / 2
-    C = mu_0 * I / typeof(r.current)(4π)
+function magnetic_flux_density(
+    c::RectangularLoop,
+    x::AbstractQuantity,
+    y::AbstractQuantity,
+    z::AbstractQuantity,
+)
+    I = c.current
+    ax = c.height / 2
+    ay = c.width / 2
+    C = mu_0 * I / typeof(c.current)(4π)
 
     r1 = norm((x + ax, y + ay, z))
     r2 = norm((x - ax, y + ay, z))
@@ -84,25 +91,17 @@ function magnetic_flux_density(r::RectangularLoop, x::AbstractQuantity, y::Abstr
     Bz += (y - ay) * f(r4, x - ax)
     Bz *= C
 
-    return uconvert.(us"Gauss", (Bx, By, Bz))
+    return Bx, By, Bz
 end
 
-function magnetic_flux_density(r::RectangularLoop, x::Number, y::Number, z::Number)
-    return ustrip.(magnetic_flux_density(r, x * u"mm", y * u"mm", z * u"mm"))
-end
+function magnetic_flux_density(c::Displace, x, y, z)
+    x′ = x - c.x
+    y′ = y - c.y
+    z′ = z - c.z
 
-function magnetic_flux_density(t::Translation, x, y, z)
-    x0 = t.vector[1]
-    y0 = t.vector[2]
-    z0 = t.vector[3]
+    B = magnetic_flux_density(c.coil, x′, y′, z′)
 
-    x′ = x - x0
-    y′ = y - y0
-    z′ = z - z0
-
-    B = magnetic_flux_density(t.coil, x′, y′, z′)
-
-    if t.coil isa CircularLoop
+    if c.coil isa CircularLoop
         ρ = sqrt(x′^2 + y′^2)
         if !iszero(ρ)
             θ = atan(y′, x′)
@@ -115,6 +114,10 @@ function magnetic_flux_density(t::Translation, x, y, z)
     end
 
     return B
+end
+
+function magnetic_flux_density(c::Reverse, x, y, z)
+    return magnetic_flux_density(c.coil, x, y, z) .* -1
 end
 
 function magnetic_flux_density(v::Vector{<:Coil}, x, y, z)
