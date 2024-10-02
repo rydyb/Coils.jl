@@ -4,10 +4,10 @@ using DynamicQuantities.Constants: mu_0
 @testset "magnetic_flux_density" begin
 
     @testset "Coil" begin
-        struct SomeCoil <: Coil
+        struct Coil <: AbstractCoil
             current::AbstractQuantity
         end
-        coil = SomeCoil(1u"A")
+        coil = Coil(1u"A")
 
         @test_throws ErrorException magnetic_flux_density(coil, 0u"m", 0u"m")
     end
@@ -61,26 +61,18 @@ using DynamicQuantities.Constants: mu_0
     @testset "Helmholtz" begin
         # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
+        loops = Superposition([Displace(loop; z = 0.5u"m"), Displace(loop; z = -0.5u"m")])
 
-        B = magnetic_flux_density(
-            [Displace(loop; z = 0.5u"m"), Displace(loop; z = -0.5u"m")],
-            0u"m",
-            0u"m",
-            0u"m",
-        )
+        B = magnetic_flux_density(loops, 0u"m", 0u"m", 0u"m")
 
         @test B[3] ≈ 0.899e-6u"T" rtol = 1e-3
     end
 
     @testset "Anti-Helmholtz" begin
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
+        loops = Superposition([Displace(loop; z = 0.5u"m"), Displace(Reverse(loop); z = -0.5u"m")])
 
-        B = magnetic_flux_density(
-            [Displace(loop; z = 0.5u"m"), Displace(Reverse(loop); z = -0.5u"m")],
-            0u"m",
-            0u"m",
-            0u"m",
-        )
+        B = magnetic_flux_density(loops, 0u"m", 0u"m", 0u"m")
 
         @test B[3] ≈ 0.0u"T" rtol = 1e-3
     end

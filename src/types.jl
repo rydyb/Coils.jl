@@ -1,12 +1,12 @@
 using DynamicQuantities
 
-export Coil
+export AbstractCoil
 export CircularLoop, RectangularLoop
-export Displace, Reverse
+export Displace, Reverse, Superposition
 
-abstract type Coil end
+abstract type AbstractCoil end
 
-struct CircularLoop{T<:AbstractQuantity} <: Coil
+struct CircularLoop{T<:AbstractQuantity} <: AbstractCoil
     current::T
     radius::T
 
@@ -18,7 +18,7 @@ struct CircularLoop{T<:AbstractQuantity} <: Coil
     end
 end
 
-struct RectangularLoop{T<:AbstractQuantity} <: Coil
+struct RectangularLoop{T<:AbstractQuantity} <: AbstractCoil
     current::T
     width::T
     height::T
@@ -32,7 +32,7 @@ struct RectangularLoop{T<:AbstractQuantity} <: Coil
     end
 end
 
-struct Displace{C<:Coil,T<:AbstractQuantity} <: Coil
+struct Displace{C<:AbstractCoil,T<:AbstractQuantity} <: AbstractCoil
     coil::C
     x::T
     y::T
@@ -46,10 +46,18 @@ struct Displace{C<:Coil,T<:AbstractQuantity} <: Coil
     end
 end
 
-struct Reverse{C<:Coil} <: Coil
+struct Reverse{C<:AbstractCoil} <: AbstractCoil
     coil::C
 
     function Reverse(coil::C) where {C}
         new{C}(coil)
+    end
+end
+
+struct Superposition{C<:AbstractCoil} <: AbstractCoil
+    coils::Vector{C}
+
+    function Superposition(coils::Vector{C}) where {C}
+        new{C}(coils)
     end
 end
