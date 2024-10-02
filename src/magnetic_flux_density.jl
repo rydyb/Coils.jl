@@ -4,7 +4,7 @@ using LinearAlgebra: norm
 
 export magnetic_flux_density
 
-magnetic_flux_density(::Coil, args...) = throw(ErrorException("not implemented"))
+magnetic_flux_density(::AbstractCoil, args...) = throw(ErrorException("not implemented"))
 
 function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::AbstractQuantity)
     R = c.radius
@@ -45,10 +45,6 @@ function magnetic_flux_density(
     z::AbstractQuantity,
 )
     Bρ, Bz = magnetic_flux_density(c, norm((x, y)), z)
-end
-
-function magnetic_flux_density(v::Vector{CircularLoop}, x, y, z)
-    return sum(magnetic_flux_density(c, x, y, z) for c in v)
 end
 
 function magnetic_flux_density(
@@ -120,12 +116,12 @@ function magnetic_flux_density(c::Reverse, x, y, z)
     return magnetic_flux_density(c.coil, x, y, z) .* -1
 end
 
-function magnetic_flux_density(v::Vector{<:Coil}, x, y, z)
+function magnetic_flux_density(c::Superposition, x, y, z)
     Bx = 0.0u"Gauss"
     By = 0.0u"Gauss"
     Bz = 0.0u"Gauss"
 
-    for coil in v
+    for coil in c.coils
         B = magnetic_flux_density(coil, x, y, z)
         Bx += B[1]
         By += B[2]
