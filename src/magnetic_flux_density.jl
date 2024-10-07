@@ -99,11 +99,7 @@ function magnetic_flux_density(
 end
 
 function magnetic_flux_density(c::Displace, x, y, z)
-    x′ = x - c.x
-    y′ = y - c.y
-    z′ = z - c.z
-
-    return magnetic_flux_density(c.coil, x′, y′, z′)
+    return magnetic_flux_density(c.coil, x - c.x, y - c.y, z - c.z)
 end
 
 function magnetic_flux_density(c::Reverse, x, y, z)
