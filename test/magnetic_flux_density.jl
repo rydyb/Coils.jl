@@ -46,6 +46,11 @@ using DynamicQuantities.Constants: mu_0
         for (ρ, z, B) in comsol
             @test norm(magnetic_flux_density(loop, ρ, z - height)) ≈ B rtol = 1e-3
         end
+
+        B1x, B1y, B1z = magnetic_flux_density(loop, 1u"mm", 1u"mm", 0u"m")
+        B2ρ, B2z = magnetic_flux_density(loop, √2u"mm", 0u"m")
+        @test B1z == B2z
+        @test B1x^2 + B1y^2 == B2ρ^2
     end
 
     @testset "RectangularLoop" begin
