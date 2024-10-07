@@ -3,6 +3,7 @@ using DynamicQuantities
 export AbstractCoil
 export CircularLoop, RectangularLoop
 export Displace, Reverse, Superposition
+export Helmholtz, AntiHelmholtz
 
 abstract type AbstractCoil end
 
@@ -61,3 +62,9 @@ struct Superposition{C<:AbstractCoil} <: AbstractCoil
         new{C}(coils)
     end
 end
+
+Helmholtz(coil::AbstractCoil; distance::AbstractQuantity) =
+    Superposition([Displace(coil, z = distance / 2), Displace(coil, z = -distance / 2)])
+
+AntiHelmholtz(coil::AbstractCoil; distance::AbstractQuantity) =
+    Superposition([Displace(coil, z = distance / 2), Reverse(Displace(coil, z = -distance / 2))])

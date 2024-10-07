@@ -96,19 +96,15 @@ using DynamicQuantities.Constants: mu_0
     @testset "Helmholtz" begin
         # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
-        loops = Superposition([Displace(loop; z = 0.5u"m"), Displace(loop; z = -0.5u"m")])
+        helmholtz = Helmholtz(loop, distance = 1u"m")
 
-        B = magnetic_flux_density(loops, 0u"m", 0u"m", 0u"m")
-
-        @test B[3] ≈ 0.899e-6u"T" rtol = 1e-3
+        @test magnetic_flux_density(helmholtz, 0u"m", 0u"m", 0u"m")[3] ≈ 0.899e-6u"T" rtol = 1e-3
     end
 
-    @testset "Anti-Helmholtz" begin
+    @testset "AntiHelmholtz" begin
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
-        loops = Superposition([Displace(loop; z = 0.5u"m"), Displace(Reverse(loop); z = -0.5u"m")])
+        ahelmholtz = AntiHelmholtz(loop, distance = 1u"m")
 
-        B = magnetic_flux_density(loops, 0u"m", 0u"m", 0u"m")
-
-        @test B[3] ≈ 0.0u"T" rtol = 1e-3
+        @test magnetic_flux_density(ahelmholtz, 0u"m", 0u"m", 0u"m")[3] ≈ 0.0u"T" rtol = 1e-3
     end
 end
