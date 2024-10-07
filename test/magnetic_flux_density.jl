@@ -58,6 +58,41 @@ using DynamicQuantities.Constants: mu_0
         @test Bz ≈ √2 * mu_0 * loop.current / (1π * 0.5u"m") rtol = 1e-3
     end
 
+    @testset "Superposition" begin
+        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
+
+        @test 2 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(Superposition([cloop, cloop]), 0u"m", 0u"m", 0u"m")
+
+        @test 2 .* magnetic_flux_density(rloop, 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(Superposition([rloop, rloop]), 0u"m", 0u"m", 0u"m")
+
+        @test magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m") .+
+              magnetic_flux_density(rloop, 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(Superposition([rloop, cloop]), 0u"m", 0u"m", 0u"m")
+    end
+
+    @testset "Displace" begin
+        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
+
+        @test magnetic_flux_density(Displace(cloop, z = 0.5u"m"), 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(cloop, 0u"m", 0u"m", -0.5u"m")
+        @test magnetic_flux_density(Displace(rloop, z = -0.1u"m"), 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(rloop, 0u"m", 0u"m", 0.1u"m")
+    end
+
+    @testset "Reverse" begin
+        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
+
+        @test magnetic_flux_density(Reverse(cloop), 0u"m", 0u"m", 0u"m") ==
+              -1 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m")
+        @test magnetic_flux_density(Reverse(cloop), 0u"m", 0u"m", 0u"m") ==
+              -1 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m")
+    end
+
     @testset "Helmholtz" begin
         # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
