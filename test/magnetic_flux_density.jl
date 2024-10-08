@@ -46,6 +46,11 @@ using DynamicQuantities.Constants: mu_0
         for (ρ, z, B) in comsol
             @test norm(magnetic_flux_density(loop, ρ, z - height)) ≈ B rtol = 1e-3
         end
+
+        B1x, B1y, B1z = magnetic_flux_density(loop, 1u"mm", 1u"mm", 0u"m")
+        B2ρ, B2z = magnetic_flux_density(loop, √2u"mm", 0u"m")
+        @test B1z == B2z
+        @test B1x^2 + B1y^2 == B2ρ^2
     end
 
     @testset "RectangularLoop" begin
@@ -58,22 +63,53 @@ using DynamicQuantities.Constants: mu_0
         @test Bz ≈ √2 * mu_0 * loop.current / (1π * 0.5u"m") rtol = 1e-3
     end
 
+    @testset "Superposition" begin
+        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
+
+        @test 2 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(Superposition([cloop, cloop]), 0u"m", 0u"m", 0u"m")
+
+        @test 2 .* magnetic_flux_density(rloop, 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(Superposition([rloop, rloop]), 0u"m", 0u"m", 0u"m")
+
+        @test magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m") .+
+              magnetic_flux_density(rloop, 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(Superposition([rloop, cloop]), 0u"m", 0u"m", 0u"m")
+    end
+
+    @testset "Displace" begin
+        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
+
+        @test magnetic_flux_density(Displace(cloop, z = 0.5u"m"), 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(cloop, 0u"m", 0u"m", -0.5u"m")
+        @test magnetic_flux_density(Displace(rloop, z = -0.1u"m"), 0u"m", 0u"m", 0u"m") ==
+              magnetic_flux_density(rloop, 0u"m", 0u"m", 0.1u"m")
+    end
+
+    @testset "Reverse" begin
+        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
+
+        @test magnetic_flux_density(Reverse(cloop), 0u"m", 0u"m", 0u"m") ==
+              -1 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m")
+        @test magnetic_flux_density(Reverse(cloop), 0u"m", 0u"m", 0u"m") ==
+              -1 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m")
+    end
+
     @testset "Helmholtz" begin
         # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
-        loops = Superposition([Displace(loop; z = 0.5u"m"), Displace(loop; z = -0.5u"m")])
+        helmholtz = Helmholtz(loop, distance = 1u"m")
 
-        B = magnetic_flux_density(loops, 0u"m", 0u"m", 0u"m")
-
-        @test B[3] ≈ 0.899e-6u"T" rtol = 1e-3
+        @test magnetic_flux_density(helmholtz, 0u"m", 0u"m", 0u"m")[3] ≈ 0.899e-6u"T" rtol = 1e-3
     end
 
-    @testset "Anti-Helmholtz" begin
+    @testset "AntiHelmholtz" begin
         loop = CircularLoop(current = 1u"A", radius = 1u"m")
-        loops = Superposition([Displace(loop; z = 0.5u"m"), Displace(Reverse(loop); z = -0.5u"m")])
+        ahelmholtz = AntiHelmholtz(loop, distance = 1u"m")
 
-        B = magnetic_flux_density(loops, 0u"m", 0u"m", 0u"m")
-
-        @test B[3] ≈ 0.0u"T" rtol = 1e-3
+        @test magnetic_flux_density(ahelmholtz, 0u"m", 0u"m", 0u"m")[3] ≈ 0.0u"T" rtol = 1e-3
     end
 end

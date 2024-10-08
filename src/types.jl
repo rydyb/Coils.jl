@@ -3,6 +3,7 @@ using DynamicQuantities
 export AbstractCoil
 export CircularLoop, RectangularLoop
 export Displace, Reverse, Superposition
+export CircularCoil, Helmholtz, AntiHelmholtz
 
 abstract type AbstractCoil end
 
@@ -60,4 +61,34 @@ struct Superposition{C<:AbstractCoil} <: AbstractCoil
     function Superposition(coils::Vector{C}) where {C}
         new{C}(coils)
     end
+end
+
+Helmholtz(coil::AbstractCoil; distance::AbstractQuantity) =
+    Superposition([Displace(coil, z = distance / 2), Displace(coil, z = -distance / 2)])
+
+AntiHelmholtz(coil::AbstractCoil; distance::AbstractQuantity) =
+    Superposition([Displace(coil, z = distance / 2), Reverse(Displace(coil, z = -distance / 2))])
+
+function CircularCoil(; current, radial_turns, axial_turns, inner_radius, outer_radius, height)
+	# radial and axial offset
+	ρ₀ = inner_radius
+	z₀ = -height / 2
+
+	# radial and axial spacing
+	Δρ = (outer_radius - inner_radius) / (radial_turns-1)
+	Δz = height / (axial_turns - 1)
+
+	# superimpose the circular current loops
+	loops = Vector{AbstractCoil}()
+	for i in 1:radial_turns
+		loop = CircularLoop(current=current, radius=ρ₀ + Δρ * (i - 1))
+
+		for j in 1:axial_turns
+			dloop = Displace(loop; z = z₀ + Δz * (j - 1))
+
+			push!(loops, dloop)
+		end
+	end
+
+	return Superposition(loops)
 end

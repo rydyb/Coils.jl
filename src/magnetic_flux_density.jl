@@ -35,7 +35,7 @@ function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::Abstrac
 
     Bz = (C / (α² * β)) * ((R^2 - ρ^2 - z^2) * E + α² * K)
 
-    return Bρ, B0, Bz
+    return Bρ, Bz
 end
 
 function magnetic_flux_density(
@@ -45,6 +45,14 @@ function magnetic_flux_density(
     z::AbstractQuantity,
 )
     Bρ, Bz = magnetic_flux_density(c, norm((x, y)), z)
+
+    ρ = sqrt(x^2 + y^2)
+    θ = atan(y, x)
+
+    Bx = Bρ * cos(θ)
+    By = Bρ * sin(θ)
+
+    return Bx, By, Bz
 end
 
 function magnetic_flux_density(
@@ -91,25 +99,7 @@ function magnetic_flux_density(
 end
 
 function magnetic_flux_density(c::Displace, x, y, z)
-    x′ = x - c.x
-    y′ = y - c.y
-    z′ = z - c.z
-
-    B = magnetic_flux_density(c.coil, x′, y′, z′)
-
-    if c.coil isa CircularLoop
-        ρ = sqrt(x′^2 + y′^2)
-        if !iszero(ρ)
-            θ = atan(y′, x′)
-            Bρ = B[1]
-            Bz = B[2]
-            Bx = Bρ * cos(θ)
-            By = Bρ * sin(θ)
-            return [Bx, By, Bz]
-        end
-    end
-
-    return B
+    return magnetic_flux_density(c.coil, x - c.x, y - c.y, z - c.z)
 end
 
 function magnetic_flux_density(c::Reverse, x, y, z)

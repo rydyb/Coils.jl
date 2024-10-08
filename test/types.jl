@@ -40,3 +40,14 @@ end
     @test_throws AssertionError Displace(loop; z = 10u"A")
 
 end
+
+@testset "CircularCoil" begin
+
+    @test CircularCoil(current = 10u"mA", inner_radius = 100u"mm", outer_radius = 200u"mm", height=10u"mm", radial_turns=2, axial_turns=2).coils == [
+        Displace(CircularLoop(current = 10u"mA", radius = 100u"mm"), z = -5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", radius = 100u"mm"), z = 5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", radius = 200u"mm"), z = -5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", radius = 200u"mm"), z = 5u"mm"),
+    ]
+
+end
