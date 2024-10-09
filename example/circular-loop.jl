@@ -25,7 +25,7 @@ md"# Circular loop"
 md"## Single loop"
 
 # ╔═╡ 3c6d5660-30d5-4cda-b7bc-44c4a5c4b93e
-loop = CircularLoop(current=1u"A", radius=40u"mm")
+loop = CircularLoop(current=1u"A", diameter=80u"mm")
 
 # ╔═╡ 56ce9aef-4b7f-4790-9cea-85a9ae1e5068
 let

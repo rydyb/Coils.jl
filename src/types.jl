@@ -9,13 +9,13 @@ abstract type AbstractCoil end
 
 struct CircularLoop{T<:AbstractQuantity} <: AbstractCoil
     current::T
-    radius::T
+    diameter::T
 
-    function CircularLoop(; current::T, radius::T) where {T}
+    function CircularLoop(; current::T, diameter::T) where {T}
         @assert dimension(current) === dimension(u"A") "current must have units of current"
-        @assert dimension(radius) === dimension(u"m") "radius must have units of length"
-        @assert ustrip(radius) > 0 "radius must be positive"
-        new{T}(current, radius)
+        @assert dimension(diameter) === dimension(u"m") "radius must have units of length"
+        @assert ustrip(diameter) > 0 "radius must be positive"
+        new{T}(current, diameter)
     end
 end
 
@@ -77,18 +77,18 @@ function CircularCoil(;
     outer_diameter,
     thickness,
 )
-    # radial and axial offset
-    ρ₀ = inner_diameter / 2
+    # offsets
+    d₀ = inner_diameter
     z₀ = -thickness / 2
 
-    # radial and axial spacing
-    Δρ = (outer_diameter - inner_diameter) / 2 * (radial_turns - 1)
+    # spacings
+    Δd = (outer_diameter - inner_diameter) / (radial_turns - 1)
     Δz = thickness / (axial_turns - 1)
 
     # superimpose the circular current loops
     loops = Vector{AbstractCoil}()
     for i = 1:radial_turns
-        loop = CircularLoop(current = current, radius = ρ₀ + Δρ * (i - 1))
+        loop = CircularLoop(current = current, diameter = d₀ + Δd * (i - 1))
 
         for j = 1:axial_turns
             dloop = Displace(loop; z = z₀ + Δz * (j - 1))

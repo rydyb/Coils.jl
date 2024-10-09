@@ -1,9 +1,9 @@
 @testset "conductor_length" begin
 
-    cloop = CircularLoop(current = 1u"A", radius = 10u"mm")
+    cloop = CircularLoop(current = 1u"A", diameter = 10u"mm")
 
     @testset "CircularLoop" begin
-        @test conductor_length(cloop) == 2π * 10u"mm"
+        @test conductor_length(cloop) == π * 10u"mm"
     end
 
     rloop = RectangularLoop(current = 1u"A", height = 10u"mm", width = 20u"mm")
@@ -24,11 +24,11 @@
         @test conductor_length(
             Superposition(
                 [
-                    CircularLoop(current = 1u"A", radius = 10u"mm")
-                    CircularLoop(current = 1u"A", radius = 20u"mm")
+                    CircularLoop(current = 1u"A", diameter = 10u"mm")
+                    CircularLoop(current = 1u"A", diameter = 20u"mm")
                 ],
             ),
-        ) ≈ 2π * 30u"mm" rtol = 1e-4
+        ) ≈ π * 30u"mm" rtol = 1e-4
         @test conductor_length(
             Superposition(
                 [

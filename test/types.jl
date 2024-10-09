@@ -1,12 +1,12 @@
 @testset "CircularLoop" begin
 
-    loop = CircularLoop(current = 10u"mA", radius = 100u"mm")
+    loop = CircularLoop(current = 10u"mA", diameter = 100u"mm")
     @test loop.current == 10u"mA"
-    @test loop.radius == 100u"mm"
+    @test loop.diameter == 100u"mm"
 
-    @test_throws AssertionError CircularLoop(current = 10u"mA", radius = -100u"mm")
-    @test_throws AssertionError CircularLoop(current = 10u"m", radius = 100u"mm")
-    @test_throws AssertionError CircularLoop(current = 10u"A", radius = 100u"V")
+    @test_throws AssertionError CircularLoop(current = 10u"mA", diameter = -100u"mm")
+    @test_throws AssertionError CircularLoop(current = 10u"m", diameter = 100u"mm")
+    @test_throws AssertionError CircularLoop(current = 10u"A", diameter = 100u"V")
 
 end
 
@@ -27,7 +27,7 @@ end
 
 @testset "Displace" begin
 
-    loop = CircularLoop(current = 10u"mA", radius = 100u"mm")
+    loop = CircularLoop(current = 10u"mA", diameter = 100u"mm")
     disp = Displace(loop; x = 10u"m", y = 20u"m", z = 30u"m")
 
     @test disp.coil == loop
@@ -46,15 +46,17 @@ end
     @test CircularCoil(
         current = 10u"mA",
         inner_diameter = 100u"mm",
-        outer_diameter = 200u"mm",
+        outer_diameter = 160u"mm",
         thickness = 10u"mm",
-        radial_turns = 2,
+        radial_turns = 3,
         axial_turns = 2,
     ).coils == [
-        Displace(CircularLoop(current = 10u"mA", radius = 50u"mm"), z = -5u"mm"),
-        Displace(CircularLoop(current = 10u"mA", radius = 50u"mm"), z = 5u"mm"),
-        Displace(CircularLoop(current = 10u"mA", radius = 100u"mm"), z = -5u"mm"),
-        Displace(CircularLoop(current = 10u"mA", radius = 100u"mm"), z = 5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", diameter = 100u"mm"), z = -5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", diameter = 100u"mm"), z = 5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", diameter = 130u"mm"), z = -5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", diameter = 130u"mm"), z = 5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", diameter = 160u"mm"), z = -5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", diameter = 160u"mm"), z = 5u"mm"),
     ]
 
 end

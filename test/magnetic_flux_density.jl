@@ -16,7 +16,7 @@ using DynamicQuantities.Constants: mu_0
 
         height = 26.5u"mm"
 
-        loop = CircularLoop(current = 300u"A", radius = 39.6u"mm")
+        loop = CircularLoop(current = 300u"A", diameter = 2*39.6u"mm")
 
         # should equal results from Comsol 5.5 simulation (wire diameter = 1.0 mm)
         comsol = [
@@ -64,7 +64,7 @@ using DynamicQuantities.Constants: mu_0
     end
 
     @testset "Superposition" begin
-        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        cloop = CircularLoop(current = 1u"A", diameter = 1u"m")
         rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
 
         @test 2 .* magnetic_flux_density(cloop, 0u"m", 0u"m", 0u"m") ==
@@ -79,7 +79,7 @@ using DynamicQuantities.Constants: mu_0
     end
 
     @testset "Displace" begin
-        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        cloop = CircularLoop(current = 1u"A", diameter = 1u"m")
         rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
 
         @test magnetic_flux_density(Displace(cloop, z = 0.5u"m"), 0u"m", 0u"m", 0u"m") ==
@@ -89,7 +89,7 @@ using DynamicQuantities.Constants: mu_0
     end
 
     @testset "Reverse" begin
-        cloop = CircularLoop(current = 1u"A", radius = 1u"m")
+        cloop = CircularLoop(current = 1u"A", diameter = 1u"m")
         rloop = RectangularLoop(current = 1u"A", width = 1u"m", height = 1u"m")
 
         @test magnetic_flux_density(Reverse(cloop), 0u"m", 0u"m", 0u"m") ==
@@ -99,15 +99,15 @@ using DynamicQuantities.Constants: mu_0
     end
 
     @testset "Helmholtz" begin
-        # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnung_der_magnetischen_Flussdichte
-        loop = CircularLoop(current = 1u"A", radius = 1u"m")
+        # https://de.wikipedia.org/wiki/Helmholtz-Spule#Berechnuang_der_magnetischen_Flussdichte
+        loop = CircularLoop(current = 1u"A", diameter = 2u"m")
         helmholtz = Helmholtz(loop, distance = 1u"m")
 
         @test magnetic_flux_density(helmholtz, 0u"m", 0u"m", 0u"m")[3] ≈ 0.899e-6u"T" rtol = 1e-3
     end
 
     @testset "AntiHelmholtz" begin
-        loop = CircularLoop(current = 1u"A", radius = 1u"m")
+        loop = CircularLoop(current = 1u"A", diameter = 1u"m")
         ahelmholtz = AntiHelmholtz(loop, distance = 1u"m")
 
         @test magnetic_flux_density(ahelmholtz, 0u"m", 0u"m", 0u"m")[3] ≈ 0.0u"T" rtol = 1e-3

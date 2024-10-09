@@ -7,7 +7,7 @@ export magnetic_flux_density
 magnetic_flux_density(::AbstractCoil, args...) = throw(ErrorException("not implemented"))
 
 function magnetic_flux_density(c::CircularLoop, ρ::AbstractQuantity, z::AbstractQuantity)
-    R = c.radius
+    R = c.diameter / 2
     I = c.current
 
     B0 = typeof(c.current)(0u"Gauss")

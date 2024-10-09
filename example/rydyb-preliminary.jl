@@ -40,19 +40,19 @@ radial_turns = 6
 axial_turns = 4
 
 # ╔═╡ 83942330-a0ff-44b7-abef-5e7f32bb610d
-height = 6.6u"mm"
+thickness = 6.6u"mm"
 
 # ╔═╡ 160d953d-87cd-4c12-af30-b03ef55aa3b6
 md"## Model"
 
 # ╔═╡ 77dda809-f7b9-4737-8926-29b3e460efc6
 coil = CircularCoil(
-	current=1u"A",
+	current=10u"A",
 	radial_turns=radial_turns,
 	axial_turns=axial_turns,
-	inner_radius=inner_diameter/2,
-	outer_radius=outer_diameter/2,
-	height=height
+	inner_diameter=inner_diameter,
+	outer_diameter=outer_diameter,
+	thickness=thickness,
 )
 
 # ╔═╡ 6949d82b-55ce-4d88-b80e-5331a1af5af4
@@ -62,7 +62,7 @@ let
 	z = []
 	
 	for coil in coil.coils
-		push!(ρ, ustrip(coil.coil.radius) / 1e-3)
+		push!(ρ, ustrip(coil.coil.diameter)/2 / 1e-3)
 		push!(z, ustrip(coil.z) / 1e-3)
 	end
 
@@ -123,8 +123,8 @@ end
 # ╟─c2e12354-bb5f-4f8b-b454-0ec589c0a059
 # ╟─83942330-a0ff-44b7-abef-5e7f32bb610d
 # ╟─160d953d-87cd-4c12-af30-b03ef55aa3b6
-# ╟─77dda809-f7b9-4737-8926-29b3e460efc6
-# ╟─6949d82b-55ce-4d88-b80e-5331a1af5af4
+# ╠═77dda809-f7b9-4737-8926-29b3e460efc6
+# ╠═6949d82b-55ce-4d88-b80e-5331a1af5af4
 # ╟─5c9a9bdf-b273-45ce-8c4b-973ba82be771
 # ╟─8daf19c0-35f7-403e-8f24-dc1bfc8314b2
 # ╟─1522e21c-dbb3-4f38-9c4f-63955da4d373

@@ -5,7 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 162f2bf8-8480-11ef-0e6a-572667782062
-begin
+let
 	import Pkg
 	Pkg.activate(".")
 end
@@ -31,7 +31,7 @@ mfdϕ(coil, ρ, z) = magnetic_flux_density(coil, ρ, 0u"m", z)[2]
 mfdz(coil, ρ, z) = magnetic_flux_density(coil, ρ, 0u"m", z)[3]
 
 # ╔═╡ 62e6b885-7900-42b5-924b-ce18ae8380b9
-loop = CircularLoop(current=1u"A", radius=1u"m")
+loop = CircularLoop(current=1u"A", diameter=2u"m")
 
 # ╔═╡ 201d11b5-9a84-412e-be77-d314a7db0b62
 md"## Helmholtz"
@@ -277,13 +277,13 @@ let
 end
 
 # ╔═╡ Cell order:
-# ╠═162f2bf8-8480-11ef-0e6a-572667782062
-# ╠═aa2b0d06-2708-42e9-b2b9-877a58b9664b
+# ╟─162f2bf8-8480-11ef-0e6a-572667782062
+# ╟─aa2b0d06-2708-42e9-b2b9-877a58b9664b
 # ╟─5fc89931-ac7f-4f6b-baeb-6e213337233d
 # ╟─23a89706-ead9-47da-bfbe-2a679890848b
 # ╟─bae5bcbd-37d4-4a01-a149-c6206bd36795
 # ╟─b77985a7-abd3-4852-ba80-87feb02205af
-# ╟─62e6b885-7900-42b5-924b-ce18ae8380b9
+# ╠═62e6b885-7900-42b5-924b-ce18ae8380b9
 # ╟─201d11b5-9a84-412e-be77-d314a7db0b62
 # ╟─a3254a0c-d669-4a33-a102-87495ead9312
 # ╟─7cf3754d-da3f-4537-a106-36d80dc3e795

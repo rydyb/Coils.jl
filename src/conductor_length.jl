@@ -4,7 +4,7 @@ conductor_length(::AbstractCoil) = throw(ErrorException("not implemented"))
 
 conductor_length(c::RectangularLoop) = 2 * (c.width + c.height)
 
-conductor_length(c::CircularLoop) = typeof(c.radius)(2π) * c.radius
+conductor_length(c::CircularLoop) = typeof(c.diameter)(π) * c.diameter
 
 conductor_length(c::Displace) = conductor_length(c.coil)
 
