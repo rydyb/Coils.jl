@@ -1,7 +1,7 @@
 name = "Coils"
 uuid = "ab2e6513-8582-4355-97c5-84ec58029ba0"
 authors = ["Bodo.Kaiser, Felix Wechsler (roflmaostc) fxw+git@mailbox.org"]
-version = "0.5.0"
+version = "0.6.0"
 
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"

@@ -43,11 +43,50 @@ end
 
 @testset "CircularCoil" begin
 
-    @test CircularCoil(current = 10u"mA", inner_radius = 100u"mm", outer_radius = 200u"mm", height=10u"mm", radial_turns=2, axial_turns=2).coils == [
+    @test CircularCoil(
+        current = 10u"mA",
+        inner_diameter = 100u"mm",
+        outer_diameter = 200u"mm",
+        thickness = 10u"mm",
+        radial_turns = 2,
+        axial_turns = 2,
+    ).coils == [
+        Displace(CircularLoop(current = 10u"mA", radius = 50u"mm"), z = -5u"mm"),
+        Displace(CircularLoop(current = 10u"mA", radius = 50u"mm"), z = 5u"mm"),
         Displace(CircularLoop(current = 10u"mA", radius = 100u"mm"), z = -5u"mm"),
         Displace(CircularLoop(current = 10u"mA", radius = 100u"mm"), z = 5u"mm"),
-        Displace(CircularLoop(current = 10u"mA", radius = 200u"mm"), z = -5u"mm"),
-        Displace(CircularLoop(current = 10u"mA", radius = 200u"mm"), z = 5u"mm"),
+    ]
+
+end
+
+@testset "RectangularCoil" begin
+
+    @test RectangularCoil(
+        current = 10u"mA",
+        inner_width = 80u"mm",
+        outer_width = 120u"mm",
+        inner_height = 100u"mm",
+        outer_height = 160u"mm",
+        thickness = 10u"mm",
+        radial_turns = 2,
+        axial_turns = 2,
+    ).coils == [
+        Displace(
+            RectangularLoop(current = 10u"mA", width = 80u"mm", height = 100u"mm"),
+            z = -5u"mm",
+        ),
+        Displace(
+            RectangularLoop(current = 10u"mA", width = 80u"mm", height = 100u"mm"),
+            z = 5u"mm",
+        ),
+        Displace(
+            RectangularLoop(current = 10u"mA", width = 120u"mm", height = 160u"mm"),
+            z = -5u"mm",
+        ),
+        Displace(
+            RectangularLoop(current = 10u"mA", width = 120u"mm", height = 160u"mm"),
+            z = 5u"mm",
+        ),
     ]
 
 end

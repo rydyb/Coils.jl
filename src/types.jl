@@ -3,7 +3,7 @@ using DynamicQuantities
 export AbstractCoil
 export CircularLoop, RectangularLoop
 export Displace, Reverse, Superposition
-export CircularCoil, Helmholtz, AntiHelmholtz
+export CircularCoil, RectangularCoil, Helmholtz, AntiHelmholtz
 
 abstract type AbstractCoil end
 
@@ -69,26 +69,72 @@ Helmholtz(coil::AbstractCoil; distance::AbstractQuantity) =
 AntiHelmholtz(coil::AbstractCoil; distance::AbstractQuantity) =
     Superposition([Displace(coil, z = distance / 2), Reverse(Displace(coil, z = -distance / 2))])
 
-function CircularCoil(; current, radial_turns, axial_turns, inner_radius, outer_radius, height)
-	# radial and axial offset
-	ρ₀ = inner_radius
-	z₀ = -height / 2
+function CircularCoil(;
+    current,
+    radial_turns,
+    axial_turns,
+    inner_diameter,
+    outer_diameter,
+    thickness,
+)
+    # radial and axial offset
+    ρ₀ = inner_diameter / 2
+    z₀ = -thickness / 2
 
-	# radial and axial spacing
-	Δρ = (outer_radius - inner_radius) / (radial_turns-1)
-	Δz = height / (axial_turns - 1)
+    # radial and axial spacing
+    Δρ = (outer_diameter - inner_diameter) / 2 * (radial_turns - 1)
+    Δz = thickness / (axial_turns - 1)
 
-	# superimpose the circular current loops
-	loops = Vector{AbstractCoil}()
-	for i in 1:radial_turns
-		loop = CircularLoop(current=current, radius=ρ₀ + Δρ * (i - 1))
+    # superimpose the circular current loops
+    loops = Vector{AbstractCoil}()
+    for i = 1:radial_turns
+        loop = CircularLoop(current = current, radius = ρ₀ + Δρ * (i - 1))
 
-		for j in 1:axial_turns
-			dloop = Displace(loop; z = z₀ + Δz * (j - 1))
+        for j = 1:axial_turns
+            dloop = Displace(loop; z = z₀ + Δz * (j - 1))
 
-			push!(loops, dloop)
-		end
-	end
+            push!(loops, dloop)
+        end
+    end
 
-	return Superposition(loops)
+    return Superposition(loops)
+end
+
+function RectangularCoil(;
+    current,
+    radial_turns,
+    axial_turns,
+    inner_width,
+    outer_width,
+    inner_height,
+    outer_height,
+    thickness,
+)
+    # offsets
+    x₀ = inner_width
+    y₀ = inner_height
+    z₀ = -thickness / 2
+
+    # spacings
+    Δx = (outer_width - inner_width) / (radial_turns - 1)
+    Δy = (outer_height - inner_height) / (radial_turns - 1)
+    Δz = thickness / (axial_turns - 1)
+
+    # superimpose the rectangular current loops
+    loops = Vector{AbstractCoil}()
+    for i = 1:radial_turns
+        loop = RectangularLoop(
+            current = current,
+            width = x₀ + Δx * (i - 1),
+            height = y₀ + Δy * (i - 1),
+        )
+
+        for j = 1:axial_turns
+            dloop = Displace(loop; z = z₀ + Δz * (j - 1))
+
+            push!(loops, dloop)
+        end
+    end
+
+    return Superposition(loops)
 end
