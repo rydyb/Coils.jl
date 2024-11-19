@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.46
+# v0.20.0
 
 using Markdown
 using InteractiveUtils
@@ -31,13 +31,16 @@ mfdϕ(coil, ρ, z) = magnetic_flux_density(coil, ρ, 0u"m", z)[2]
 mfdz(coil, ρ, z) = magnetic_flux_density(coil, ρ, 0u"m", z)[3]
 
 # ╔═╡ 62e6b885-7900-42b5-924b-ce18ae8380b9
-loop = CircularLoop(current=1u"A", diameter=2u"m")
+loop = RectangularLoop(current=10u"A", height=100u"mm", width=200u"mm")
 
 # ╔═╡ 201d11b5-9a84-412e-be77-d314a7db0b62
 md"## Helmholtz"
 
 # ╔═╡ a3254a0c-d669-4a33-a102-87495ead9312
-helmholtz = Helmholtz(loop, distance=1u"m")
+helmholtz = Helmholtz(loop, distance=200u"mm")
+
+# ╔═╡ 94745543-9d48-4a3e-9675-e20f60a30e83
+mfd(helmholtz, 0u"m", 0u"m") |> us"Gauss"
 
 # ╔═╡ 7cf3754d-da3f-4537-a106-36d80dc3e795
 md"### Axial cuts"
@@ -285,7 +288,8 @@ end
 # ╟─b77985a7-abd3-4852-ba80-87feb02205af
 # ╠═62e6b885-7900-42b5-924b-ce18ae8380b9
 # ╟─201d11b5-9a84-412e-be77-d314a7db0b62
-# ╟─a3254a0c-d669-4a33-a102-87495ead9312
+# ╠═a3254a0c-d669-4a33-a102-87495ead9312
+# ╠═94745543-9d48-4a3e-9675-e20f60a30e83
 # ╟─7cf3754d-da3f-4537-a106-36d80dc3e795
 # ╟─66add5e2-364e-4544-8c91-3cbec816e0b0
 # ╟─932eb910-a15e-44b9-a245-5dd1fc4ea1c0

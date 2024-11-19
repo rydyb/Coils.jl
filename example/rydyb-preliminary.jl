@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.46
+# v0.20.0
 
 using Markdown
 using InteractiveUtils
@@ -23,6 +23,12 @@ md"# Preliminary MOT coils"
 
 # ╔═╡ e07c2240-4cad-4ad9-a23e-858513676811
 mfd(coil, x, y, z) = norm(magnetic_flux_density(coil, x, y, z))
+
+# ╔═╡ 74cb430a-d011-4c8f-92e2-62a6150ce9ba
+mfdmax(coil) = norm(magnetic_flux_density(coil, 0u"m", 0u"m", 0u"m"))
+
+# ╔═╡ cc6763ca-837b-4074-b8bc-c79e16864f43
+mfdinhomo(coil) = norm(magnetic_flux_density(coil, 1u"mm"+fov/2, 1u"mm"+fov/2, 0u"m") .- magnetic_flux_density(coil, 1u"mm", 1u"mm", 0u"m"))
 
 # ╔═╡ c140ed6e-ec0f-46f1-8b59-aa11d929bf4b
 md"## Parameters"
@@ -116,6 +122,8 @@ end
 # ╟─6e0eefe8-84bc-11ef-3034-83d7fa963949
 # ╟─2f64e4f8-b1bb-4821-89d4-ee55f7535a1f
 # ╟─e07c2240-4cad-4ad9-a23e-858513676811
+# ╠═74cb430a-d011-4c8f-92e2-62a6150ce9ba
+# ╠═cc6763ca-837b-4074-b8bc-c79e16864f43
 # ╟─c140ed6e-ec0f-46f1-8b59-aa11d929bf4b
 # ╟─9811ae08-181a-42d7-9f71-9920e68aa0b5
 # ╟─94d761bc-8808-4879-b0c9-1fefda24d6ef

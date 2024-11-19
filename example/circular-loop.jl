@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.46
+# v0.20.0
 
 using Markdown
 using InteractiveUtils
@@ -59,14 +59,14 @@ end
 md"## Two equal loops"
 
 # ╔═╡ 0b58a74b-1a53-4462-afd0-e3a2018966b0
-loops2 = Helmholtz(loop, distance=20u"mm")
+loops2 = Helmholtz(loop, distance=100u"mm")
 
 # ╔═╡ 7f470d0d-a808-4a48-81a2-247b2a8b9628
 let
 	z = range(-100u"mm", 100u"mm", 50)
 
 	plot(
-		ustrip.(z),
+		ustrip.(z) / 1e-3,
 		ustrip.([
 			[magnetic_flux_density(loops2.coils[1], 0u"m", 0u"m", z)[3] for z in z],
 			[magnetic_flux_density(loops2.coils[2], 0u"m", 0u"m", z)[3] for z in z],
@@ -74,6 +74,7 @@ let
 		]) ./ 1e-4,
 		marker=[:circle :star :cross],
 		labels=["Top", "Bottom", "Sum"],
+		yticks=range(0.0, 0.20, 21),
 		legend=:false
 	)
 	xlabel!("z (mm)")
@@ -108,6 +109,6 @@ end
 # ╠═56ce9aef-4b7f-4790-9cea-85a9ae1e5068
 # ╟─4aa77f2e-518f-43b7-8db3-e4d0d790bf26
 # ╟─d00c68f5-0efc-43e4-ab65-45383e51ed1b
-# ╟─0b58a74b-1a53-4462-afd0-e3a2018966b0
-# ╟─7f470d0d-a808-4a48-81a2-247b2a8b9628
+# ╠═0b58a74b-1a53-4462-afd0-e3a2018966b0
+# ╠═7f470d0d-a808-4a48-81a2-247b2a8b9628
 # ╟─64a19d40-e547-40f4-b1f6-1f995c51eadc
